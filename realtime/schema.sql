@@ -19,7 +19,7 @@ create policy "Update own rooms" on public.vl_rooms for update to authenticated
 using (host_id=(select auth.uid())) with check(host_id=(select auth.uid()));
 create policy "Delete own rooms" on public.vl_rooms for delete to authenticated using (host_id=(select auth.uid()));
 grant select,insert,update,delete on public.vl_rooms to authenticated;
--- Only sessions whose email is confirmed can use public-room signaling.
+-- Enable Supabase Auth > Confirm Email. Authenticated sessions may signal in public rooms.
 create policy "VivaLive receive public room signaling" on realtime.messages for select to authenticated
 using (
   realtime.topic() like 'vl-room:%'
@@ -27,7 +27,6 @@ using (
 create policy "VivaLive send public room signaling" on realtime.messages for insert to authenticated
 with check (
   realtime.topic() like 'vl-room:%'
-  and exists (select 1 from auth.users where id=(select auth.uid()) and email_confirmed_at is not null)
 );
 -- IMPORTANT: This MVP is limited to public, non-adult rooms.
 -- Email verification proves mailbox control, NOT legal age or identity.
