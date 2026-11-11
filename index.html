@@ -88,6 +88,53 @@ header{padding:16px}header strong{font-size:27px}
 #stage #leave{align-self:flex-start}
 }
 #videoDiagnostics{background:#352837;color:#ffe3eb;border:1px solid #6d3d54;border-radius:10px;padding:10px;font-size:12px;margin:0;grid-column:2;grid-row:4}#stage #leave{grid-row:5;grid-column:2}#stage>p:has(#hint){grid-row:6;grid-column:1/3}@media(max-width:720px){#videoDiagnostics{order:1}#messages{order:2}#stage>div:has(#message){order:3}#stage #leave{order:4}#stage>p:has(#hint){order:5}}
+
+/* VivaLive immersive mobile-first live layout */
+:root{--vl-bg:#08080d;--vl-card:#171823;--vl-accent:#ff2f80}
+body{background:var(--vl-bg)}
+header{background:#090b13;border-bottom:1px solid #242533}
+header small{color:#d8d8df}
+#introBanner{border-radius:18px;background:radial-gradient(circle at 90% 0%,#633558 0,transparent 50%),linear-gradient(120deg,#362237,#161a2a);min-height:135px}
+.room{border-radius:17px;background:linear-gradient(165deg,#51416d,#251d36 52%,#121322);box-shadow:0 8px 18px #0004}
+.room button{border-radius:10px}
+#stage{position:relative;display:grid;max-width:1150px;min-height:min(88dvh,850px);height:min(88dvh,850px);grid-template-columns:minmax(0,1fr) 315px;grid-template-rows:62px minmax(0,1fr) auto;gap:0;background:#050509;border:1px solid #39323f;overflow:hidden;border-radius:20px;padding:0}
+#stage.hidden{display:none}
+#stage #video{grid-column:1;grid-row:1/4;display:block;height:100%;width:100%;max-height:none;object-fit:contain;border-radius:0;background:#000;aspect-ratio:auto;transform:none}
+#stage .pill{grid-column:1;grid-row:1;z-index:3;justify-self:start;align-self:start;margin:16px;background:#f52d76;border-radius:8px;padding:8px 12px;font-size:12px;box-shadow:0 3px 15px #0007}
+#stage #stageTitle{grid-column:1;grid-row:1;z-index:3;align-self:center;justify-self:start;margin:0 0 0 112px;font-size:17px;text-shadow:0 2px 7px #000}
+#stage #messages{grid-column:2;grid-row:1/3;height:100%;max-height:none;min-height:0;overflow-y:auto;background:#141622;border:0;border-left:1px solid #32303c;border-radius:0;padding:65px 12px 15px}
+#stage #messages:before{content:"CHAT EN VIVO";display:block;font-size:11px;font-weight:800;letter-spacing:1px;color:#b2a8c5;margin-bottom:12px}
+#stage #messages p{background:#262332;border-radius:12px;overflow-wrap:anywhere}
+#stage>div:has(#message){grid-column:2;grid-row:3;display:flex;padding:12px;background:#141622;border-top:1px solid #353343;gap:5px;align-items:center}
+#stage #message{min-width:0;flex:1;font-size:13px;background:#2a2937;border:0;border-radius:22px;padding:11px}
+#stage #send{margin:0;border-radius:25px;padding:10px;background:#f52d76;font-size:13px}
+#stage #videoDiagnostics{position:absolute;bottom:58px;right:12px;z-index:3;width:min(290px,calc(100% - 24px));background:#241d2dde;color:#ffd8e9;border:1px solid #5a3854;border-radius:12px;font-size:12px;line-height:1.4;padding:10px;pointer-events:none}
+#stage #leave{position:absolute;left:16px;bottom:14px;z-index:5;margin:0;background:#24232bd9;border:1px solid #77707b;color:#fff;border-radius:24px;font-size:12px;padding:9px 15px}
+#stage>p:has(#hint){position:absolute;bottom:15px;left:185px;right:340px;z-index:3;margin:0;pointer-events:none;text-shadow:0 2px 5px #000;font-size:10px}
+#stageActions{position:absolute;left:12px;top:84px;z-index:4;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+#stageActions button{border:1px solid #ffffff40;background:#151520ba;color:#fff;backdrop-filter:blur(6px);border-radius:25px;font-size:12px;padding:9px 14px;margin:0}
+#stage #videoDiagnostics.ok{background:#16332fdf;border-color:#3b8873;color:#b5ffdb}
+#stage #videoDiagnostics.error{background:#46202fe8;border-color:#e26183;color:#ffe5eb}
+@media(max-width:720px){
+header{padding:12px 14px}header strong{font-size:25px}header small{font-size:10px}
+#stage{display:block;margin:0;position:fixed;inset:0;z-index:30;width:100%;max-width:none;height:100dvh;min-height:0;border:0;border-radius:0;background:#08080c}
+#stage #video{position:absolute;inset:0;width:100%;height:100%;max-height:none;aspect-ratio:auto;object-fit:contain;background:#000}
+#stage:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(#000a,transparent 20%,transparent 48%,#0009 75%,#08080eea)}
+#stage .pill{position:absolute;left:10px;top:calc(env(safe-area-inset-top) + 12px);margin:0;font-size:12px}
+#stage #stageTitle{position:absolute;left:96px;top:calc(env(safe-area-inset-top) + 19px);right:48px;margin:0;font-size:16px;z-index:4}
+#stage #messages{position:absolute;left:10px;right:64px;bottom:calc(env(safe-area-inset-bottom) + 105px);top:auto;z-index:4;height:145px;min-height:0;max-height:145px;background:transparent;border:0;padding:0;mask-image:linear-gradient(transparent,#000 25%)}
+#stage #messages:before{content:none}
+#stage #messages p{background:#18151a96;font-size:12px;padding:8px 10px;max-width:90%;width:max-content}
+#stage>div:has(#message){position:absolute;z-index:5;left:8px;right:57px;bottom:calc(env(safe-area-inset-bottom) + 60px);padding:0;border:0;background:transparent}
+#stage #message{background:#20202dba;color:#fff;border:1px solid #ffffff5c;font-size:12px}
+#stage #videoDiagnostics{position:absolute;z-index:5;left:10px;right:10px;top:calc(env(safe-area-inset-top) + 76px);bottom:auto;width:auto;max-width:none;font-size:12px;padding:9px 11px}
+#stage #videoDiagnostics.ok{opacity:.8}
+#stage #leave{position:absolute;z-index:7;top:calc(env(safe-area-inset-top) + 10px);left:auto;right:8px;bottom:auto;border-radius:100%;width:38px;height:38px;overflow:hidden;text-indent:-9999px;padding:0}
+#stage #leave:after{content:"×";font-size:26px;position:absolute;inset:0;text-indent:0;text-align:center;line-height:35px}
+#stageActions{position:absolute;top:auto;bottom:calc(env(safe-area-inset-bottom) + 113px);right:8px;left:auto;z-index:5;align-items:center}
+#stageActions button{width:46px;height:46px;border-radius:50%;font-size:11px;padding:3px;background:#22212aaf;overflow:hidden}
+#stage>p:has(#hint){display:none}
+}
 </style></head><body><header><strong>VIVA<span>LIVE</span></strong><small>Transmisiones en tiempo real</small></header>
 <p id="status" role="status">Preparando conexión...</p>
 <section id="auth" class="hidden"><h2>Bienvenido a VivaLive</h2><div class="auth-tabs"><button id="tabRegister" class="current">Crear cuenta</button><button id="tabLogin">Iniciar sesión</button></div>
@@ -105,12 +152,12 @@ header{padding:16px}header strong{font-size:27px}
 <div class="view hidden" id="createView"><h2>🎥 Estudio del creador</h2><p>Transmite desde tu dispositivo y haz que otras cuentas encuentren tu sala en Inicio.</p><button id="go">🔴 Iniciar transmisión pública</button><p><small>Se pedirá permiso para usar tu cámara y micrófono. Esta versión es una beta de WebRTC entre dispositivos.</small></p></div>
 <div class="view hidden" id="profileView"><h2>Mi perfil</h2><p id="myName"></p><p id="who"></p><p><small>El correo se guarda en Supabase Auth y tu sesión permanece en este dispositivo.</small></p><button id="signout">Cerrar sesión</button></div>
 </section>
-<section id="stage" class="hidden"><p class="pill" id="stageStatus">🔴 LIVE</p><h2 id="stageTitle"></h2><video id="video" autoplay playsinline controls></video><p id="videoDiagnostics" role="status" aria-live="polite">Esperando conexión…</p><div id="messages"></div><div><input id="message" placeholder="Escribe un comentario" maxlength="500"><button id="send">Enviar</button></div><button id="leave">Finalizar / salir</button><p><small id="hint"></small></p></section>
+<section id="stage" class="hidden"><p class="pill" id="stageStatus">🔴 LIVE</p><h2 id="stageTitle"></h2><video id="video" autoplay playsinline controls></video><div id="stageActions"><button id="shareLive" type="button" title="Compartir transmisión">↗</button><button id="expandLive" type="button" title="Pantalla completa">⛶</button></div><p id="videoDiagnostics" role="status" aria-live="polite">Esperando conexión…</p><div id="messages"></div><div><input id="message" placeholder="Escribe un comentario" maxlength="500"><button id="send">Enviar</button></div><button id="leave">Finalizar / salir</button><p><small id="hint"></small></p></section>
 <script type="module">
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2.78.0';
 import {SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY} from './realtime/config.js';
 const E=id=>document.getElementById(id);
-const status=x=>{E('status').textContent=x;const diag=E('videoDiagnostics');if(diag)diag.textContent=x;};
+const status=x=>{E('status').textContent=x;const diag=E('videoDiagnostics');if(diag){diag.textContent=x;diag.classList.toggle('ok',x.includes('✅'));diag.classList.toggle('error',/No se|Error|fall|necesit|agotad/i.test(x));}};
 if(!SUPABASE_URL||!SUPABASE_PUBLISHABLE_KEY){status('Falta configurar un proyecto Supabase exclusivo para VivaLive. Esta versión aún no está operativa.');throw Error('Supabase sin configurar');}
 const sb=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 let me=null,room=null,channel=null,stream=null,hosting=false,peers=new Map(),viewerPC=null,heartbeat=null,pendingIce=[];
@@ -173,6 +220,12 @@ async function list(){
  }
  if(!E('rooms').children.length)E('rooms').textContent='No hay transmisiones en esta categoría. Abre Crear para iniciar un live.';
  E('search').dispatchEvent(new Event('input'));
+ const target=new URLSearchParams(location.search).get('live');
+ if(target&&!viewerPC&&!hosting&&room?.id!==target){
+ const match=(data||[]).find(x=>x.id===target);
+ if(match){history.replaceState(null,'',location.pathname);watch(match);}
+ }
+
 }
 
 
@@ -293,6 +346,17 @@ async function watch(r){
   },12000);
  }catch(e){status('No se pudo entrar a la sala: '+e.message);await leave();}
 }
+
+E('shareLive').onclick=async()=>{
+ if(!room)return status('No hay una sala para compartir.');
+ const url=location.origin+'/?live='+encodeURIComponent(room.id);
+ try{if(navigator.share)await navigator.share({title:'VivaLive',url});else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(url);status('Enlace del live copiado.');}else status('Enlace del live: '+url);}
+ catch(e){if(e.name!=='AbortError')status('No se pudo compartir el enlace.');}
+};
+E('expandLive').onclick=()=>{
+ if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
+ else E('stage').requestFullscreen?.().catch(()=>status('Tu navegador no permite pantalla completa aquí.'));
+};
 E('send').onclick=async()=>{const text=E('message').value.trim().slice(0,500);if(!text||!channel)return;await signal('chat',{from:me.id,name:String(me.user_metadata?.display_name||me.email).slice(0,40),text});E('message').value='';say('Yo',text);};
 async function leave(){clearInterval(heartbeat);heartbeat=null;for(const pc of peers.values())pc.close();peers.clear();viewerPC?.close();viewerPC=null;pendingIce=[];if(hosting&&room){await sb.from('vl_rooms').update({status:'ended'}).eq('id',room.id);await signal('ended',{});}if(channel){await sb.removeChannel(channel);channel=null;}stream?.getTracks().forEach(t=>t.stop());stream=null;room=null;hosting=false;E('video').srcObject=null;E('messages').replaceChildren();show('stage',false);show('panel',!!me);if(me){navigate('home');await list();}}
 E('leave').onclick=leave;window.addEventListener('pagehide',()=>{stream?.getTracks().forEach(t=>t.stop());});sb.auth.onAuthStateChange(()=>{setTimeout(user,0);});await user();
