@@ -56,12 +56,6 @@ const show=(id,on)=>E(id).classList.toggle('hidden',!on);
 const say=(name,message)=>{const p=document.createElement('p');p.textContent=name+': '+message;E('messages').appendChild(p);E('messages').scrollTop=E('messages').scrollHeight;};
 const err=e=>status(e?.message||String(e));
 async function user(){const {data:{user},error}=await sb.auth.getUser();if(error&&error.name!=='AuthSessionMissingError')console.log(error);me=user?.email_confirmed_at?user:null;show('auth',!me);show('panel',!!me);if(me){E('who').textContent=me.email;E('myName').textContent=me.user_metadata?.display_name||'Creador';navigate('home');await list();status('Correo confirmado. Puedes crear o ver una transmisión.');}else status('Crea una cuenta, confirma el correo e inicia sesión.');}
-const authMessage=(message,ok=false)=>{E('authFeedback').textContent=message;E('authFeedback').style.color=ok?'#a4f5c0':'#ffcbda';status(message);};
-let authBusy=false;
-function authMode(signup){show('nameRow',signup);show('confirmRow',signup);show('signup',signup);show('signin',!signup);E('signupTab').classList.toggle('active',signup);E('signinTab').classList.toggle('active',!signup);E('password').autocomplete=signup?'new-password':'current-password';E('authFeedback').textContent='';}
-E('signupTab').onclick=()=>authMode(true);
-E('signinTab').onclick=()=>authMode(false);
-
 function navigate(view){
 for(const v of ['home','create','profile'])show(v+'View',v===view);
 for(const v of ['Home','Search','Create','Profile'])E('nav'+v).classList.toggle('selected',v.toLowerCase()===view||(v==='Search'&&view==='home'));
