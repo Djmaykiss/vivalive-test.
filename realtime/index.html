@@ -29,7 +29,13 @@ E('signup').onclick=async()=>{
   if(!data?.user)throw Error('El servidor no confirmó la solicitud. Intenta nuevamente.');
   if(data.user.identities?.length===0)return authMessage('No se pudo crear una cuenta nueva con este correo. Si ya tienes una cuenta, usa Iniciar sesión o recupera tu contraseña.');
   authMessage(data.user.email_confirmed_at?'Cuenta creada. Ya puedes iniciar sesión.':'Solicitud recibida. Revisa tu correo y confirma el enlace antes de iniciar sesión.',true);
- }catch(e){authMessage('No se pudo completar el registro: '+(e?.message||String(e)));}
+ }catch(e){
+  if(e?.code==='over_email_send_rate_limit'){
+   authMessage('Se alcanzó el límite de correos de confirmación. Espera antes de volver a solicitar el registro.');
+  }else{
+   authMessage('No se pudo completar el registro: '+(e?.message||String(e)));
+  }
+ }
  finally{authBusy=false;E('signup').disabled=false;}
 };
 E('signin').onclick=async()=>{
