@@ -1,4 +1,4 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VivaLive — Sala real (desarrollo)</title><style>body{font:16px system-ui;background:#0c1020;color:white;max-width:750px;margin:20px auto;padding:14px}h1{color:#ff4a89}section{background:#1b2540;padding:18px;border-radius:14px;margin:14px 0}input,button{padding:12px;margin:5px;border-radius:9px;border:0;font:inherit}input{background:#293651;color:white;max-width:90%}button{background:#f43c82;color:white;cursor:pointer}button:disabled{opacity:.5}video{width:100%;aspect-ratio:16/9;background:black;border-radius:10px}#messages{max-height:180px;overflow:auto}small{color:#bcc6dd}#status{white-space:pre-wrap} .hidden{display:none}.auth-card{max-width:450px;margin:22px auto;background:linear-gradient(155deg,#253252,#171b32);box-shadow:0 15px 45px #0005}.auth-card h2{text-align:center;margin-bottom:4px}.auth-desc{text-align:center;color:#bcc6dd}.auth-card label{display:block;font-size:14px;margin:13px 5px 3px;color:#e9eefa}.auth-card input{display:block;box-sizing:border-box;width:calc(100% - 10px);max-width:none}.auth-tabs{display:flex;gap:8px;margin:20px 0}.auth-tabs .tab{flex:1;background:#333a52;color:#cad2e4}.auth-tabs .tab.active{background:#f43c82;color:white}.auth-primary{width:calc(100% - 10px);font-weight:700;margin-top:18px}#authFeedback{min-height:24px;white-space:pre-wrap;font-size:14px;color:#ffcbda}.auth-card small{display:block;margin:12px 5px;line-height:1.5}
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>VivaLive — Sala real (desarrollo)</title><style>body{font:16px system-ui;background:#0c1020;color:white;max-width:750px;margin:20px auto;padding:14px}h1{color:#ff4a89}section{background:#1b2540;padding:18px;border-radius:14px;margin:14px 0}input,button{padding:12px;margin:5px;border-radius:9px;border:0;font:inherit}input{background:#293651;color:white;max-width:90%}button{background:#f43c82;color:white;cursor:pointer}button:disabled{opacity:.5}video{width:100%;aspect-ratio:16/9;background:black;border-radius:10px}#messages{max-height:180px;overflow:auto}small{color:#bcc6dd}#status{white-space:pre-wrap} .hidden{display:none}.auth-card{max-width:450px;margin:22px auto;background:linear-gradient(155deg,#253252,#171b32);box-shadow:0 15px 45px #0005}.auth-card h2{text-align:center;margin-bottom:4px}.auth-desc{text-align:center;color:#bcc6dd}.auth-card label{display:block;font-size:14px;margin:13px 5px 3px;color:#e9eefa}.auth-card input{display:block;box-sizing:border-box;width:calc(100% - 10px);max-width:none}.auth-tabs{display:flex;gap:8px;margin:20px 0}.auth-tabs .tab{flex:1;background:#333a52;color:#cad2e4}.auth-tabs .tab.active{background:#f43c82;color:white}.auth-primary{width:calc(100% - 10px);font-weight:700;margin-top:18px}#authFeedback{min-height:24px;white-space:pre-wrap;font-size:14px;color:#ffcbda}.auth-card small{display:block;margin:12px 5px;line-height:1.5}
 *{box-sizing:border-box}body{margin:0 auto;max-width:900px;padding:0;background:#0b1020;color:#fff}button,input{font:inherit}
 header{background:#131a2c;padding:18px 20px;border-bottom:1px solid #303b55;position:sticky;top:0;z-index:2}
 header strong{font-size:27px;letter-spacing:-1px}header strong span{color:#ff4087}
@@ -134,6 +134,118 @@ header{padding:12px 14px}header strong{font-size:25px}header small{font-size:10p
 #stageActions{position:absolute;top:auto;bottom:calc(env(safe-area-inset-bottom) + 113px);right:8px;left:auto;z-index:5;align-items:center}
 #stageActions button{width:46px;height:46px;border-radius:50%;font-size:11px;padding:3px;background:#22212aaf;overflow:hidden}
 #stage>p:has(#hint){display:none}
+}
+
+/* VivaLive responsive system: phones, tablets, laptops and wide desktops */
+:root{--content-max:1200px}
+html{box-sizing:border-box;-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-padding-top:84px}
+*,*::before,*::after{box-sizing:inherit}
+html,body{width:100%;max-width:100%;min-width:0;min-height:100%;overflow-x:clip}
+body{margin:0;background:#08080d;color:#f8f8fc}
+button,input,select,textarea{max-width:100%;min-width:0}
+button{touch-action:manipulation;min-height:40px}
+button:focus-visible,input:focus-visible{outline:2px solid #ff6aa8;outline-offset:2px}
+header{width:100%;padding-inline:max(16px,calc((100vw - var(--content-max))/2));min-height:70px;gap:16px}
+header strong{white-space:nowrap}
+header small{text-align:right}
+#status{width:min(calc(100% - 32px),var(--content-max));margin:12px auto;overflow-wrap:anywhere;line-height:1.45}
+#panel{width:min(100%,var(--content-max));max-width:var(--content-max);margin-inline:auto;padding:12px 18px calc(95px + env(safe-area-inset-bottom,0px))}
+#auth{width:min(calc(100% - 28px),460px);max-width:none;margin:clamp(12px,4vh,44px) auto;padding:clamp(16px,4vw,28px);overflow-wrap:anywhere}
+#auth input{max-width:none;min-width:0}
+#auth .auth-tabs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+#auth .auth-tabs button{margin:0;padding:12px 5px;min-width:0}
+#auth button.action{width:100%;margin:12px 0 0}
+#auth label{display:block;margin:11px 0 3px}
+#authFeedback{overflow-wrap:anywhere}
+#panel .view{min-width:0}
+#introBanner{max-width:100%;overflow-wrap:anywhere}
+#introBanner h3{font-size:clamp(18px,2.4vw,25px);line-height:1.2}
+#liveCategories{width:100%;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:none}
+#liveCategories button{flex:0 0 auto}
+#homeView h2{font-size:clamp(19px,2.3vw,27px)}
+#homeView>p{max-width:64ch;line-height:1.5}
+#rooms{display:grid;width:100%;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:clamp(8px,1.1vw,16px)}
+.room{width:100%;min-width:0;overflow:hidden;aspect-ratio:3/4.05;min-height:0}
+.room b,.room small{overflow-wrap:anywhere}
+.room button{white-space:normal}
+#search{width:100%;max-width:none;min-height:45px}
+#refresh{margin:7px 0 10px}
+#createView,#profileView{width:min(100%,690px);max-width:none}
+#createView button,#profileView button{max-width:100%}
+nav{width:min(calc(100% - 24px),550px);left:50%;right:auto;transform:translateX(-50%);bottom:0;padding:8px 8px calc(9px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+nav button{min-width:0;line-height:1.3;margin:0;font-size:clamp(11px,1.2vw,14px);white-space:normal}
+#stage{width:min(calc(100% - 28px),var(--content-max));max-width:var(--content-max);height:min(85dvh,900px);min-height:500px;margin:12px auto}
+#stage #video{min-width:0;min-height:0}
+#stage #messages{min-width:0;overflow-wrap:anywhere}
+#stage>div:has(#message){min-width:0}
+#stage #message{width:100%;min-width:0}
+#stage #hint{overflow-wrap:anywhere}
+@media (min-width:1450px){
+ :root{--content-max:1320px}
+ #rooms{grid-template-columns:repeat(4,minmax(0,1fr))}
+ #stage{grid-template-columns:minmax(0,1fr) 350px}
+}
+@media (min-width:721px) and (max-width:1050px){
+ #panel{padding-inline:20px}
+ #rooms{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #stage{grid-template-columns:minmax(0,1fr) minmax(260px,32%);height:min(82dvh,780px)}
+ #stage #stageTitle{max-width:calc(100% - 130px);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+ #stage #messages{padding-inline:10px}
+}
+@media (min-width:481px) and (max-width:720px){
+ #rooms{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .room{aspect-ratio:3/4.2}
+}
+@media (max-width:720px){
+ header{min-height:62px;max-width:none;padding-inline:14px}
+ header strong{font-size:clamp(22px,5vw,27px)}
+ header small{font-size:11px;max-width:44%;line-height:1.35}
+ #status{width:calc(100% - 24px);margin:8px auto;font-size:12px}
+ #panel{padding:8px 12px calc(88px + env(safe-area-inset-bottom,0px))}
+ #introBanner{margin:4px 0 14px;padding:17px;min-height:108px}
+ #introBanner p{font-size:12px}
+ #liveCategories{margin:0 -2px;padding:2px 2px 10px}
+ #liveCategories button{padding:9px 12px;font-size:12px}
+ #rooms{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .room{aspect-ratio:3/4.35}
+ .room button{width:calc(100% - 12px);margin:4px 6px 7px;min-height:36px;padding:6px 5px;font-size:12px}
+ .room b{padding-inline:8px;font-size:14px}
+ .room small{padding-inline:8px;font-size:10px}
+ #search{margin:9px 0}
+ #refresh{font-size:12px;padding:10px 13px}
+ #createView,#profileView{margin:10px auto;padding:16px}
+ nav{width:100%;max-width:100%;border-radius:14px 14px 0 0;border-left:0;border-right:0}
+ #stage{position:fixed;inset:0;margin:0;width:100%;height:100dvh;min-height:0;max-width:none;max-height:none;border:0;border-radius:0}
+ #stage #video{width:100%;height:100%;min-height:0}
+ #stage #messages{height:clamp(95px,18dvh,160px);max-height:clamp(95px,18dvh,160px)}
+ #stage #videoDiagnostics{max-height:95px;overflow:auto;overflow-wrap:anywhere}
+ #stage>div:has(#message){max-width:calc(100% - 57px)}
+ #stage #message{font-size:16px}
+ #stage #send{font-size:13px}
+}
+@media (max-width:360px){
+ header{padding-inline:10px}
+ header small{font-size:10px;max-width:39%}
+ #panel{padding-inline:9px}
+ #introBanner{padding:13px}
+ #rooms{gap:7px}
+ .room{aspect-ratio:3/4.55}
+ .room b{font-size:12px}
+ .room button{font-size:11px}
+ nav button{font-size:11px}
+ #stage #stageTitle{max-width:calc(100% - 145px);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ #stage #videoDiagnostics{top:calc(env(safe-area-inset-top) + 63px)}
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:950px){
+ #stage{height:100dvh}
+ #stage #video{object-fit:contain}
+ #stage #messages{left:auto;right:8px;width:33%;top:65px;bottom:70px;height:auto;max-height:none;background:#17172499;border-radius:10px;padding:8px}
+ #stage>div:has(#message){left:auto;right:8px;width:33%;bottom:12px;max-width:33%}
+ #stage #videoDiagnostics{left:8px;right:auto;top:auto;bottom:55px;width:55%;max-height:58px}
+ #stageActions{top:80px;bottom:auto;right:auto;left:10px}
+}
+@media (prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
 </style></head><body><header><strong>VIVA<span>LIVE</span></strong><small>Transmisiones en tiempo real</small></header>
 <p id="status" role="status">Preparando conexión...</p>
