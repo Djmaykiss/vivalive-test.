@@ -1,8 +1,11 @@
 import { AccessToken, TrackSource } from 'livekit-server-sdk';
-import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '../../realtime/config.js';
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
+const SUPABASE_PUBLISHABLE_KEY = Deno.env.get('SUPABASE_ANON_KEY');
+const cors = {'Access-Control-Allow-Origin':'https://vivalive-test.netlify.app','Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'authorization, apikey, content-type, x-client-info'};
 
-const reply = (status, body) => Response.json(body, {status, headers: {'Cache-Control':'no-store'}});
+const reply = (status, body) => Response.json(body, {status, headers: {...cors, 'Cache-Control':'no-store'}});
 export default async function handler(request) {
+  if (request.method === 'OPTIONS') return new Response(null,{status:204,headers:cors});
   if (request.method !== 'POST') return reply(405, {error:'Usa POST.'});
   const authorization = request.headers.get('authorization') || '';
   if (!/^Bearer [^\s]+$/i.test(authorization)) return reply(401, {error:'Inicia sesión.'});
@@ -22,9 +25,9 @@ export default async function handler(request) {
     if (!room || (body.role === "viewer" && Date.parse(room.heartbeat_at) < Date.now()-70000)) return reply(404,{error:'La transmisión terminó.'});
     const publish = body.role === 'host';
     if (publish && room.host_id !== user.id) return reply(403,{error:'Solo el creador puede transmitir.'});
-    const url = process.env.LIVEKIT_URL;
-    const key = process.env.LIVEKIT_API_KEY;
-    const secret = process.env.LIVEKIT_API_SECRET;
+    const url = 'wss://vivalive-qeo7133f.livekit.cloud';
+    const key = Deno.env.get('LIVEKIT_API_KEY');
+    const secret = Deno.env.get('LIVEKIT_API_SECRET');
     if (!url?.startsWith('wss://') || !key || !secret) return reply(503,{error:'LiveKit todavía no está configurado.'});
     const identity = publish ? user.id : user.id + '/' + crypto.randomUUID();
     const token = new AccessToken(key, secret, {identity, ttl:'2m', name:String(user.user_metadata?.display_name || 'Usuario').slice(0,40)});
