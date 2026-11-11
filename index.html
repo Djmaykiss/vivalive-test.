@@ -87,6 +87,7 @@ header{padding:16px}header strong{font-size:27px}
 #stage>div:has(#message){display:flex}
 #stage #leave{align-self:flex-start}
 }
+#videoDiagnostics{background:#352837;color:#ffe3eb;border:1px solid #6d3d54;border-radius:10px;padding:10px;font-size:12px;margin:0;grid-column:2;grid-row:4}#stage #leave{grid-row:5;grid-column:2}#stage>p:has(#hint){grid-row:6;grid-column:1/3}@media(max-width:720px){#videoDiagnostics{order:1}#messages{order:2}#stage>div:has(#message){order:3}#stage #leave{order:4}#stage>p:has(#hint){order:5}}
 </style></head><body><header><strong>VIVA<span>LIVE</span></strong><small>Transmisiones en tiempo real</small></header>
 <p id="status" role="status">Preparando conexión...</p>
 <section id="auth" class="hidden"><h2>Bienvenido a VivaLive</h2><div class="auth-tabs"><button id="tabRegister" class="current">Crear cuenta</button><button id="tabLogin">Iniciar sesión</button></div>
@@ -104,12 +105,12 @@ header{padding:16px}header strong{font-size:27px}
 <div class="view hidden" id="createView"><h2>🎥 Estudio del creador</h2><p>Transmite desde tu dispositivo y haz que otras cuentas encuentren tu sala en Inicio.</p><button id="go">🔴 Iniciar transmisión pública</button><p><small>Se pedirá permiso para usar tu cámara y micrófono. Esta versión es una beta de WebRTC entre dispositivos.</small></p></div>
 <div class="view hidden" id="profileView"><h2>Mi perfil</h2><p id="myName"></p><p id="who"></p><p><small>El correo se guarda en Supabase Auth y tu sesión permanece en este dispositivo.</small></p><button id="signout">Cerrar sesión</button></div>
 </section>
-<section id="stage" class="hidden"><p class="pill" id="stageStatus">🔴 LIVE</p><h2 id="stageTitle"></h2><video id="video" autoplay playsinline controls></video><div id="messages"></div><div><input id="message" placeholder="Escribe un comentario" maxlength="500"><button id="send">Enviar</button></div><button id="leave">Finalizar / salir</button><p><small id="hint"></small></p></section>
+<section id="stage" class="hidden"><p class="pill" id="stageStatus">🔴 LIVE</p><h2 id="stageTitle"></h2><video id="video" autoplay playsinline controls></video><p id="videoDiagnostics" role="status" aria-live="polite">Esperando conexión…</p><div id="messages"></div><div><input id="message" placeholder="Escribe un comentario" maxlength="500"><button id="send">Enviar</button></div><button id="leave">Finalizar / salir</button><p><small id="hint"></small></p></section>
 <script type="module">
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2.78.0';
 import {SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY} from './realtime/config.js';
 const E=id=>document.getElementById(id);
-const status=x=>E('status').textContent=x;
+const status=x=>{E('status').textContent=x;const diag=E('videoDiagnostics');if(diag)diag.textContent=x;};
 if(!SUPABASE_URL||!SUPABASE_PUBLISHABLE_KEY){status('Falta configurar un proyecto Supabase exclusivo para VivaLive. Esta versión aún no está operativa.');throw Error('Supabase sin configurar');}
 const sb=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 let me=null,room=null,channel=null,stream=null,hosting=false,peers=new Map(),viewerPC=null,heartbeat=null,pendingIce=[];
