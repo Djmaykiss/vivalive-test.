@@ -111,12 +111,119 @@ async function list(){
  if(!data?.length)E('rooms').textContent='No hay transmisiones activas. Inicia una desde Crear.';
  E('search').dispatchEvent(new Event('input'));
 }
-const signal=(event,payload)=>channel?.send({type:'broadcast',event,payload});
-const rtc=()=>new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});
-async function listen(id){channel=sb.channel('vl-room:'+id,{config:{private:true,broadcast:{ack:true}}});channel.on('broadcast',{event:'join'},async({payload})=>{if(!hosting||!payload?.viewer||payload.viewer===me.id)return;const viewer=payload.viewer;if(peers.has(viewer))peers.get(viewer).close();const pc=rtc();peers.set(viewer,pc);for(const track of stream.getTracks())pc.addTrack(track,stream);pc.onicecandidate=e=>{if(e.candidate)signal('ice',{target:viewer,from:me.id,candidate:e.candidate.toJSON()});};const offer=await pc.createOffer();await pc.setLocalDescription(offer);await signal('offer',{target:viewer,from:me.id,sdp:pc.localDescription});}).on('broadcast',{event:'offer'},async({payload})=>{if(hosting||payload.target!==me.id)return;const pc=viewerPC;if(!pc)return;await pc.setRemoteDescription(payload.sdp);for(const candidate of pendingIce.splice(0))await pc.addIceCandidate(candidate);const answer=await pc.createAnswer();await pc.setLocalDescription(answer);await signal('answer',{target:payload.from,from:me.id,sdp:pc.localDescription});}).on('broadcast',{event:'answer'},async({payload})=>{if(!hosting||payload.target!==me.id)return;await peers.get(payload.from)?.setRemoteDescription(payload.sdp);}).on('broadcast',{event:'ice'},async({payload})=>{if(payload.target!==me.id)return;const pc=hosting?peers.get(payload.from):viewerPC;if(!pc)return;if(pc.remoteDescription)await pc.addIceCandidate(payload.candidate);else if(!hosting)pendingIce.push(payload.candidate);}).on('broadcast',{event:'chat'},({payload})=>{say(payload.name||'Usuario',String(payload.text||'').slice(0,500));}).on('broadcast',{event:'ended'},()=>{if(!hosting){status('La transmisión terminó.');leave();}}).subscribe(s=>{if(s==='SUBSCRIBED'&&!hosting)signal('join',{viewer:me.id});if(s==='CHANNEL_ERROR')status('No se pudo abrir el canal de transmisión. Revisa políticas Realtime.');});}
-E('go').onclick=async()=>{if(!me)return;try{stream=await navigator.mediaDevices.getUserMedia({audio:true,video:true});hosting=true;await sb.from('vl_rooms').update({status:'ended'}).eq('host_id',me.id).eq('status','live');let {data,error}=await sb.from('vl_rooms').insert({host_id:me.id,host_name:String(me.user_metadata?.display_name||me.email.split('@')[0]).slice(0,40)}).select().single();if(error)throw error;room=data;E('video').muted=true;E('video').srcObject=stream;show('stage',true);show('panel',false);E('stageTitle').textContent='🔴 EN VIVO — '+room.host_name;E('hint').textContent='Abre VivaLive con otra cuenta y pulsa Actualizar transmisiones. WebRTC P2P tiene límite de espectadores y puede requerir TURN.';await listen(room.id);heartbeat=setInterval(async()=>{await sb.from('vl_rooms').update({heartbeat_at:new Date().toISOString()}).eq('id',room.id)},25000);status('Emitiendo cámara y micrófono.');}catch(e){err(e);await leave();}};
-async function watch(r){if(!me)return;hosting=false;room=r;show('stage',true);show('panel',false);E('stageTitle').textContent='Viendo a '+r.host_name;E('hint').textContent='Esperando video. Si no conecta, puede faltar un servidor TURN.';viewerPC=rtc();viewerPC.ontrack=e=>{E('video').srcObject=e.streams[0];E('video').muted=false;E('video').play().catch(()=>status('Toca Reproducir para escuchar el video.'));};viewerPC.onicecandidate=e=>{if(e.candidate)signal('ice',{target:room.host_id,from:me.id,candidate:e.candidate.toJSON()});};await listen(r.id);}
-E('send').onclick=async()=>{const text=E('message').value.trim().slice(0,500);if(!text||!channel)return;await signal('chat',{name:String(me.user_metadata?.display_name||me.email).slice(0,40),text});E('message').value='';say('Yo',text);};
+
+const signal=async(event,payload)=>{
+ if(!channel)throw Error('Sala no conectada');
+ const result=await channel.send({type:'broadcast',event,payload});
+ if(result!=='ok')throw Error('No se pudo enviar '+event+' ('+result+')');
+};
+const rtc=()=>new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}],iceCandidatePoolSize:2});
+function waitForIce(pc){
+ return new Promise((resolve,reject)=>{
+  if(pc.iceGatheringState==='complete')return resolve();
+  const timeout=setTimeout(()=>{pc.removeEventListener('icegatheringstatechange',changed);resolve()},8500);
+  function changed(){if(pc.iceGatheringState==='complete'){clearTimeout(timeout);pc.removeEventListener('icegatheringstatechange',changed);resolve();}}
+  pc.addEventListener('icegatheringstatechange',changed);
+ });
+}
+function connectionState(pc,role){
+ pc.onconnectionstatechange=()=>{
+  const state=pc.connectionState;
+  if(state==='connected')status('✅ Video conectado entre dispositivos ('+role+').');
+  else if(state==='failed')status('No se estableció video. Esta conexión podría necesitar un servidor TURN. Finaliza, vuelve a Inicio e intenta de nuevo.');
+  else if(state==='disconnected')status('Se interrumpió el video. Comprueba tu conexión a Internet.');
+  else if(state==='connecting')status('Conectando cámara y audio entre dispositivos…');
+ };
+}
+async function listen(id){
+ channel=sb.channel('vl-room:'+id,{config:{private:true,broadcast:{ack:true}}});
+ channel.on('broadcast',{event:'join'},async({payload})=>{
+  if(!hosting||!stream||!payload?.viewer||payload.viewer===me.id)return;
+  try{
+   const viewer=payload.viewer;
+   peers.get(viewer)?.close();
+   const pc=rtc();peers.set(viewer,pc);connectionState(pc,'creador');
+   for(const track of stream.getTracks())pc.addTrack(track,stream);
+   await pc.setLocalDescription(await pc.createOffer());
+   await waitForIce(pc);
+   if(pc.signalingState!=='closed')await signal('offer',{target:viewer,from:me.id,sdp:pc.localDescription});
+  }catch(e){status('No se pudo conectar con un espectador: '+e.message);}
+ }).on('broadcast',{event:'offer'},async({payload})=>{
+  if(hosting||payload?.target!==me.id||!viewerPC)return;
+  try{
+   const pc=viewerPC;
+   await pc.setRemoteDescription(payload.sdp);
+   await pc.setLocalDescription(await pc.createAnswer());
+   await waitForIce(pc);
+   if(pc.signalingState!=='closed')await signal('answer',{target:payload.from,from:me.id,sdp:pc.localDescription});
+   status('Conectando con la cámara del creador…');
+  }catch(e){status('Error al recibir video: '+e.message);}
+ }).on('broadcast',{event:'answer'},async({payload})=>{
+  if(!hosting||payload?.target!==me.id)return;
+  try{const pc=peers.get(payload.from);if(pc&&pc.signalingState==='have-local-offer')await pc.setRemoteDescription(payload.sdp);}
+  catch(e){status('Error al establecer la conexión: '+e.message);}
+ }).on('broadcast',{event:'chat'},({payload})=>{
+  if(payload?.from===me.id)return;
+  say(String(payload?.name||'Usuario').slice(0,40),String(payload?.text||'').slice(0,500));
+ }).on('broadcast',{event:'ended'},()=>{
+  if(!hosting){status('La transmisión terminó.');leave();}
+ });
+ await new Promise((resolve,reject)=>{
+  const timeout=setTimeout(()=>reject(Error('Tiempo de espera agotado al conectar la sala.')),15000);
+  channel.subscribe(state=>{
+   if(state==='SUBSCRIBED'){clearTimeout(timeout);resolve();}
+   else if(state==='CHANNEL_ERROR'||state==='TIMED_OUT'||state==='CLOSED'){clearTimeout(timeout);reject(Error('No se pudo abrir el canal de transmisión ('+state+').'));}
+  });
+ });
+}
+E('go').onclick=async()=>{
+ if(!me||hosting||stream)return;
+ try{
+  stream=await navigator.mediaDevices.getUserMedia({audio:true,video:true});
+  hosting=true;
+  const old=await sb.from('vl_rooms').update({status:'ended'}).eq('host_id',me.id).eq('status','live');
+  if(old.error)throw old.error;
+  const {data,error}=await sb.from('vl_rooms').insert({host_id:me.id,host_name:String(me.user_metadata?.display_name||me.email.split('@')[0]).slice(0,40)}).select().single();
+  if(error)throw error;
+  room=data;
+  E('video').muted=true;E('video').srcObject=stream;E('video').play().catch(()=>{});
+  show('stage',true);show('panel',false);
+  E('stageTitle').textContent='🔴 EN VIVO — '+room.host_name;
+  E('hint').textContent='Mantén abierta esta página. Los espectadores deben entrar desde otra cuenta.';
+  status('Abriendo sala en vivo…');
+  await listen(room.id);
+  heartbeat=setInterval(async()=>{
+   const {error}=await sb.from('vl_rooms').update({heartbeat_at:new Date().toISOString()}).eq('id',room.id);
+   if(error)status('No se pudo actualizar el estado de la sala: '+error.message);
+  },25000);
+  status('🔴 Sala lista. Esperando espectadores.');
+ }catch(e){status('No se pudo iniciar el live: '+e.message);await leave();}
+};
+async function watch(r){
+ if(!me)return;
+ hosting=false;room=r;
+ show('stage',true);show('panel',false);
+ E('stageTitle').textContent='Viendo a '+r.host_name;
+ E('hint').textContent='Si el video no conecta, revisa el estado de conexión. Algunas redes requieren TURN.';
+ const pc=rtc();viewerPC=pc;connectionState(pc,'espectador');
+ pc.ontrack=e=>{
+  const media=e.streams?.[0]||new MediaStream([e.track]);
+  E('video').srcObject=media;E('video').muted=false;E('video').autoplay=true;
+  E('video').play().catch(()=>status('El video está disponible. Pulsa Reproducir para activarlo.'));
+ };
+ try{
+  status('Entrando a la sala…');
+  await listen(r.id);
+  await signal('join',{viewer:me.id});
+  status('Buscando conexión con el creador…');
+  setTimeout(()=>{
+   if(viewerPC===pc&&pc.connectionState!=='connected'){
+    status('Aún no se conecta el video. Pulsa Reproducir o sal y vuelve a entrar; si continúa, puede ser necesario configurar TURN.');
+   }
+  },12000);
+ }catch(e){status('No se pudo entrar a la sala: '+e.message);await leave();}
+}
+E('send').onclick=async()=>{const text=E('message').value.trim().slice(0,500);if(!text||!channel)return;await signal('chat',{from:me.id,name:String(me.user_metadata?.display_name||me.email).slice(0,40),text});E('message').value='';say('Yo',text);};
 async function leave(){clearInterval(heartbeat);heartbeat=null;for(const pc of peers.values())pc.close();peers.clear();viewerPC?.close();viewerPC=null;pendingIce=[];if(hosting&&room){await sb.from('vl_rooms').update({status:'ended'}).eq('id',room.id);await signal('ended',{});}if(channel){await sb.removeChannel(channel);channel=null;}stream?.getTracks().forEach(t=>t.stop());stream=null;room=null;hosting=false;E('video').srcObject=null;E('messages').replaceChildren();show('stage',false);show('panel',!!me);if(me){navigate('home');await list();}}
 E('leave').onclick=leave;window.addEventListener('pagehide',()=>{stream?.getTracks().forEach(t=>t.stop());});sb.auth.onAuthStateChange(()=>{setTimeout(user,0);});await user();
 </script></body></html>
