@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "livekit-server-sdk": "2.19.3"
+  },
+  "devDependencies": {
+    "livekit-client": "2.23.0"
+  }
+}
