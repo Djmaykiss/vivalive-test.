@@ -26,6 +26,67 @@ nav button.selected{background:#f43c82;color:white}
 .pill{display:inline-block;padding:5px 10px;border-radius:20px;background:#e82c69}
 #joinlink{font-size:12px;color:#bac7dc;overflow-wrap:anywhere}
 @media(max-width:520px){body{padding:0}header{padding:15px}section{margin:12px}#rooms{grid-template-columns:repeat(2,minmax(0,1fr))}nav button{font-size:12px;padding:11px 5px}.room{padding:10px;min-height:148px}#auth{margin:12px}}
+
+:root{color-scheme:dark;--pink:#fd2e7a;--bg:#090b12;--panel:#151924;--surface:#202635;--muted:#a2aec3}
+body{background:var(--bg);max-width:none;font-family:system-ui,-apple-system,Arial,sans-serif}
+header{max-width:none;background:#0e111b;display:flex;align-items:center;justify-content:space-between;padding:17px max(20px,calc((100vw - 1100px)/2));box-shadow:0 1px #252c39}
+header strong{font-size:29px;font-weight:950;letter-spacing:-1.5px}header small{font-size:12px}
+#status{max-width:1070px;padding:0 16px}
+#panel{max-width:1070px;position:relative;padding:10px 16px 75px}
+nav{position:fixed;bottom:0;left:0;right:0;margin:auto;max-width:550px;border-radius:16px 16px 0 0;z-index:15;background:#121723;border:1px solid #343e52;box-shadow:0 -10px 30px #05070b80;padding:8px}
+nav button{background:transparent;border:0;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:10px;font-size:13px}
+nav button.selected{background:#3b1b30;color:#ff5291;font-weight:700}
+.view{background:transparent;margin-top:4px;padding:8px 0}
+#homeView h2{font-size:25px;margin:6px 0 8px}
+#homeView>p{color:var(--muted);font-size:13px;margin:0 0 12px}
+#refresh{background:#222938;border:1px solid #3c4557}
+#search{display:block;width:100%;max-width:none;border:1px solid #37445b;border-radius:13px;background:#1a202e;margin:8px 0 12px;padding:14px}
+#rooms{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:15px 0}
+.room{position:relative;min-height:260px;border:1px solid #394053;border-radius:15px;overflow:hidden;padding:0;background:linear-gradient(160deg,#384166,#171c30 55%,#17101e);display:flex;flex-direction:column;justify-content:flex-end}
+.room:before{content:"◉";position:absolute;top:20%;width:100%;text-align:center;font-size:70px;color:#c5a0c744;text-shadow:0 10px 50px #e46dca4d}
+.room b,.room small,.room button{position:relative;z-index:1}
+.room b{font-size:17px;padding:8px 12px 0;background:linear-gradient(transparent,#0b0d19ad);word-break:break-word}
+.room small{font-size:11px;padding:1px 12px 5px;background:#0b0d19ad}
+.room button{width:calc(100% - 20px);margin:7px 10px 12px;background:var(--pink);font-size:13px;font-weight:750}
+#liveCategories{display:flex;gap:7px;overflow-x:auto;padding:4px 0 14px;scrollbar-width:none}
+#liveCategories button{white-space:nowrap;background:#212635;border:1px solid #384255;padding:10px 15px;font-size:13px;border-radius:28px}
+#liveCategories button.active{background:#f52d76;border-color:#f52d76}
+#introBanner{background:linear-gradient(110deg,#31253c,#1b233c 55%,#132e37);border:1px solid #454057;border-radius:16px;padding:20px;margin:10px 0 18px}
+#introBanner h3{font-size:21px;margin:0 0 6px}
+#introBanner p{color:#bec9da;margin:0;font-size:13px}
+#panel .view h2{font-weight:800}
+#createView,#profileView{max-width:690px;background:#171d2c;border:1px solid #343d53;border-radius:16px;padding:20px;margin:18px auto}
+#createView p,#profileView p{color:#bdc5d6;line-height:1.5}
+#go{font-weight:750;padding:14px 18px}
+#auth{border:1px solid #334057;border-radius:20px;background:linear-gradient(155deg,#22283d,#111624);padding:24px}
+#auth h2{text-align:center;font-size:25px}
+#auth input{padding:14px;background:#282f43;border-radius:12px}
+#auth button{font-weight:650}
+#stage{max-width:1050px;min-height:85dvh;display:grid;grid-template-columns:minmax(0,1fr) 310px;grid-template-rows:auto 1fr auto auto;gap:10px;background:#121722;padding:16px;border:1px solid #3a4558}
+#stage.hidden{display:none}
+#stage .pill{grid-column:1/3;grid-row:1;justify-self:start;align-self:center;margin:0;font-weight:750}
+#stage h2{grid-column:1/3;grid-row:1;margin:0 0 0 105px;font-size:20px}
+#video{grid-row:2/5;grid-column:1;height:calc(85dvh - 110px);min-height:300px;max-height:none;aspect-ratio:auto;background:#000;object-fit:contain;border-radius:13px}
+#messages{grid-row:2;grid-column:2;height:auto;min-height:220px;background:#181e2b}
+#stage>div:has(#message){grid-row:3;grid-column:2;display:flex;align-items:center}
+#message{min-width:0;width:100%;margin:0}
+#stage #leave{grid-row:4;grid-column:2}
+#stage #hint{grid-column:1/3;grid-row:5;font-size:12px;color:#abb8cf;margin:0}
+#stage>p:has(#hint){grid-row:5;grid-column:1/3;margin:0}
+#stage>p:has(#hint) small{font-size:11px}
+@media(max-width:720px){
+header{padding:16px}header strong{font-size:27px}
+#panel{padding:6px 12px 78px}
+#rooms{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.room{min-height:220px}
+#introBanner{padding:16px}
+#stage{display:flex;flex-direction:column;gap:10px;min-height:calc(100dvh - 110px);margin:8px 6px;padding:10px}
+#stage h2{margin:0;font-size:21px}
+#video{height:auto;aspect-ratio:9/13;max-height:58dvh;width:100%}
+#messages{min-height:110px;height:135px}
+#stage>div:has(#message){display:flex}
+#stage #leave{align-self:flex-start}
+}
 </style></head><body><header><strong>VIVA<span>LIVE</span></strong><small>Transmisiones en tiempo real</small></header>
 <p id="status" role="status">Preparando conexión...</p>
 <section id="auth" class="hidden"><h2>Bienvenido a VivaLive</h2><div class="auth-tabs"><button id="tabRegister" class="current">Crear cuenta</button><button id="tabLogin">Iniciar sesión</button></div>
@@ -37,7 +98,7 @@ nav button.selected{background:#f43c82;color:white}
 <p id="authFeedback" role="alert"></p><small>Confirma tu correo para entrar. Esta prueba no verifica edad ni identidad; contenido adulto y pagos deshabilitados.</small></section>
 <section id="panel" class="hidden">
 <nav><button class="selected" id="navHome">⌂ Inicio</button><button id="navSearch">⌕ Buscar</button><button id="navCreate">⊕ Crear</button><button id="navProfile">♙ Perfil</button></nav>
-<div class="view" id="homeView"><h2>🔴 Lives en vivo</h2><p>Transmisiones reales disponibles. No hay cuentas ni espectadores simulados.</p>
+<div class="view" id="homeView"><div id="introBanner"><h3>Descubre quién está en vivo 🔥</h3><p>Explora creadores, únete al chat y comparte tu propio directo.</p></div><div id="liveCategories"><button class="active" data-category="all">🌎 Para ti</button><button data-category="recent">🆕 Recientes</button><button data-category="mine">👤 Mi live</button></div><h2>🔴 Transmisiones en vivo</h2><p>Solo aparecen salas activas reales; los contadores de audiencia todavía están en desarrollo.</p>
 <input id="search" placeholder="Buscar creador en vivo" aria-label="Buscar creador">
 <button id="refresh">Actualizar transmisiones</button><div id="rooms"></div></div>
 <div class="view hidden" id="createView"><h2>🎥 Estudio del creador</h2><p>Transmite desde tu dispositivo y haz que otras cuentas encuentren tu sala en Inicio.</p><button id="go">🔴 Iniciar transmisión pública</button><p><small>Se pedirá permiso para usar tu cámara y micrófono. Esta versión es una beta de WebRTC entre dispositivos.</small></p></div>
@@ -101,17 +162,25 @@ async function list(){
  const {data,error}=await sb.from('vl_rooms').select('id,host_id,host_name,created_at').eq('status','live').gt('heartbeat_at',new Date(Date.now()-70000).toISOString()).order('created_at',{ascending:false});
  if(error){status('No fue posible cargar las salas: '+error.message);return;}
  E('rooms').replaceChildren();
- for(const r of data||[]){
+ for(const r of (roomCategory==='recent'?[...(data||[])].reverse():(data||[]))){
+ if(roomCategory==='mine'&&r.host_id!==me.id)continue;
  const card=document.createElement('div');card.className='room';card.dataset.name=r.host_name.toLocaleLowerCase();
  const title=document.createElement('b');title.textContent='🔴 '+r.host_name;
  const details=document.createElement('small');details.textContent='Transmitiendo ahora · Público';
  const button=document.createElement('button');button.textContent=r.host_id===me.id?'Ver mi sala':'▶ Ver transmisión';button.onclick=()=>watch(r);
  card.append(title,details,button);E('rooms').append(card);
  }
- if(!data?.length)E('rooms').textContent='No hay transmisiones activas. Inicia una desde Crear.';
+ if(!E('rooms').children.length)E('rooms').textContent='No hay transmisiones en esta categoría. Abre Crear para iniciar un live.';
  E('search').dispatchEvent(new Event('input'));
 }
 
+
+let roomCategory='all';
+document.querySelectorAll('[data-category]').forEach(btn=>btn.onclick=()=>{
+ roomCategory=btn.dataset.category;
+ document.querySelectorAll('[data-category]').forEach(x=>x.classList.toggle('active',x===btn));
+ list();
+});
 const signal=async(event,payload)=>{
  if(!channel)throw Error('Sala no conectada');
  const result=await channel.send({type:'broadcast',event,payload});
