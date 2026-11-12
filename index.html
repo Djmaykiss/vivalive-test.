@@ -275,6 +275,59 @@ nav button{min-width:0;line-height:1.3;margin:0;font-size:clamp(11px,1.2vw,14px)
 @media(orientation:landscape) and (max-height:520px) and (max-width:950px){
  #stage #video{object-fit:cover;object-position:center center}
 }
+
+/* Additive VivaLive batallas / tac-tac. All existing elements retained. */
+#battleLaunch{font-weight:750}
+#battlePicker,#battleInvite{position:absolute;z-index:12;top:68px;left:12px;width:min(360px,calc(100% - 24px));padding:14px;background:#1a1b2bed;border:1px solid #bd5e86;border-radius:15px;box-shadow:0 14px 45px #000b;backdrop-filter:blur(12px)}
+#battlePicker.hidden,#battleInvite.hidden,#battlePane.hidden,#tapBar.hidden{display:none!important}
+#battlePicker h3,#battleInvite h3{font-size:17px;margin:0 0 9px}
+#battlePicker small,#battleInvite p{color:#d2c9da;font-size:12px}
+#battleChoices{display:flex;flex-direction:column;gap:7px;max-height:240px;overflow-y:auto;margin:10px 0}
+#battleChoices button{width:100%;background:#30283a;border:1px solid #6a4563;text-align:left;margin:0}
+#battlePicker>button,#battleInvite button{font-size:12px;padding:9px;margin:4px 3px 0 0}
+#battleStatus{font-size:12px;color:#ffc4dd;margin:6px 0 0}
+#battlePane{position:absolute;inset:0 0 0 50%;z-index:1;background:#08080b;overflow:hidden}
+#battleOpponentVideo{width:100%;height:100%;object-fit:cover;object-position:center;background:#050509}
+#battleOpponentName{position:absolute;top:61px;left:8px;z-index:3;padding:6px 10px;border-radius:12px;background:#17131fce;font-size:12px;max-width:90%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#battleScoreboard{position:absolute;z-index:10;top:10px;left:50%;transform:translateX(-50%);width:min(420px,calc(100% - 180px));display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;color:white;text-shadow:0 2px 5px #000;padding:7px 12px;background:linear-gradient(90deg,#c62869e0,#27243cde,#5e4cffdd);border-radius:20px}
+#battleScoreboard.hidden{display:none}
+#battleScoreboard b{font-variant-numeric:tabular-nums}
+#battleScoreboard span{font-size:10px;max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#stage.battle-active #video{position:absolute;inset:0 auto 0 0;width:50%;height:100%;object-fit:cover}
+#stage.battle-active #battlePane{display:block}
+#stage.battle-active #stageTitle{display:none}
+#stage.battle-active #messages{position:absolute;z-index:5;left:10px;right:10px;bottom:110px;top:auto;width:min(330px,60%);max-height:145px;height:145px;border:0;background:#1416228f;border-radius:12px;overflow-y:auto;padding:8px}
+#stage.battle-active #messages:before{display:none}
+#stage.battle-active>div:has(#message){position:absolute;z-index:6;left:10px;right:auto;bottom:54px;width:min(370px,65%);border:0;background:#141622a8;border-radius:26px;padding:5px}
+#stage.battle-active #videoDiagnostics{z-index:8}
+#tapBar{position:absolute;right:14px;bottom:125px;z-index:8;display:flex;flex-direction:column;align-items:end;gap:7px}
+#tapBar button{border-radius:28px;border:1px solid #ffffff36;background:#eb3176;color:#fff;padding:12px 14px;min-height:45px;box-shadow:0 4px 20px #0008;font-size:13px;font-weight:750;touch-action:manipulation}
+#tapBar small{display:block;max-width:140px;text-align:right;color:#ffdeed;background:#13101db9;border-radius:12px;padding:4px 8px;font-size:11px}
+#tapBar .tapCount{font-variant-numeric:tabular-nums}
+#tapBar button:active{transform:scale(.93)}
+#stage.battle-active #tapBar{bottom:24px}
+#stage.battle-active #tapBar button{min-width:130px}
+#battleEnd{background:#2a1b31!important}
+@media(max-width:720px){
+ #battlePicker,#battleInvite{top:calc(env(safe-area-inset-top) + 65px);left:8px;width:calc(100% - 16px)}
+ #battlePane{inset:0 0 0 50%}
+ #battleScoreboard{top:calc(env(safe-area-inset-top) + 63px);width:min(290px,calc(100% - 20px));gap:5px;padding:8px 7px}
+ #battleScoreboard span{max-width:78px}
+ #battleOpponentName{top:calc(env(safe-area-inset-top) + 115px);font-size:10px;padding:5px 6px}
+ #stage.battle-active #video{height:100%;width:50%;object-fit:cover}
+ #stage.battle-active #messages{left:7px;right:60px;bottom:calc(env(safe-area-inset-bottom) + 108px);width:calc(100% - 76px);height:110px;max-height:110px;background:transparent;mask-image:linear-gradient(transparent,#000 25%)}
+ #stage.battle-active>div:has(#message){left:7px;right:60px;bottom:calc(env(safe-area-inset-bottom) + 65px);width:calc(100% - 70px);background:transparent}
+ #tapBar{right:9px;bottom:calc(env(safe-area-inset-bottom) + 175px)}
+ #tapBar button{padding:11px 9px;font-size:12px}
+ #stage.battle-active #tapBar{right:7px;bottom:calc(env(safe-area-inset-bottom) + 210px)}
+ #stage.battle-active #tapBar button{min-width:110px}
+ #stage.battle-active #videoDiagnostics{top:calc(env(safe-area-inset-top) + 164px)}
+}
+
+#tapFx{position:absolute;inset:0;pointer-events:none;z-index:9;overflow:hidden}
+.tap-heart{position:absolute;font-size:28px;color:#ff478f;text-shadow:0 2px 10px #f40870b0;animation:vl-float 850ms ease-out forwards}
+@keyframes vl-float{from{transform:translateY(0) scale(.75);opacity:1}to{transform:translateY(-100px) scale(1.4);opacity:0}}
+@media(prefers-reduced-motion:reduce){.tap-heart{animation:none;opacity:0}}
 </style></head><body><header><strong>VIVA<span>LIVE</span></strong><small>Transmisiones en tiempo real</small></header>
 <p id="status" role="status">Preparando conexión...</p>
 <section id="auth" class="hidden"><h2>Bienvenido a VivaLive</h2><div class="auth-tabs"><button id="tabRegister" class="current">Crear cuenta</button><button id="tabLogin">Iniciar sesión</button></div>
@@ -292,7 +345,12 @@ nav button{min-width:0;line-height:1.3;margin:0;font-size:clamp(11px,1.2vw,14px)
 <div class="view hidden" id="createView"><h2>🎥 Estudio del creador</h2><p>Transmite desde tu dispositivo y haz que otras cuentas encuentren tu sala en Inicio.</p><button id="go">🔴 Iniciar transmisión pública</button><p><small>Se pedirá permiso para usar tu cámara y micrófono. Esta versión es una beta de WebRTC entre dispositivos.</small></p></div>
 <div class="view hidden" id="profileView"><h2>Mi perfil</h2><p id="myName"></p><p id="who"></p><p><small>El correo se guarda en Supabase Auth y tu sesión permanece en este dispositivo.</small></p><button id="signout">Cerrar sesión</button></div>
 </section>
-<section id="stage" class="hidden"><p class="pill" id="stageStatus">🔴 LIVE</p><h2 id="stageTitle"></h2><video id="video" autoplay playsinline controls></video><div id="stageActions"><button id="shareLive" type="button" title="Compartir transmisión">↗</button><button id="expandLive" type="button" title="Pantalla completa">⛶</button></div><p id="videoDiagnostics" role="status" aria-live="polite">Esperando conexión…</p><div id="messages"></div><div><input id="message" placeholder="Escribe un comentario" maxlength="500"><button id="send">Enviar</button></div><button id="leave">Finalizar / salir</button><p><small id="hint"></small></p></section>
+<section id="stage" class="hidden"><p class="pill" id="stageStatus">🔴 LIVE</p><h2 id="stageTitle"></h2><video id="video" autoplay playsinline controls></video><aside id="battlePane" class="hidden"><video id="battleOpponentVideo" autoplay playsinline controls></video><span id="battleOpponentName"></span></aside>
+<div id="tapFx" aria-hidden="true"></div><div id="battleScoreboard" class="hidden" aria-live="polite"><span id="battleLeftName"></span><b id="battleLeftScore">0</b><strong id="battleClock">05:00</strong><b id="battleRightScore">0</b><span id="battleRightName"></span></div>
+<div id="battlePicker" class="hidden"><h3>⚔️ Invitar a una batalla</h3><small>Reta a otro creador que esté transmitiendo. Él debe aceptar.</small><div id="battleChoices"></div><p id="battleStatus"></p><button id="battleClose" type="button">Cerrar</button><button id="battleEnd" class="hidden" type="button">Terminar batalla</button></div>
+<div id="battleInvite" class="hidden"><h3>⚔️ ¡Te retaron!</h3><p id="battleInviteText"></p><button id="battleAccept" type="button">Aceptar batalla</button><button id="battleReject" type="button">Rechazar</button></div>
+<div id="tapBar" class="hidden"><button id="tapOwn" type="button">💗 Tac tac</button><small id="tapOwnTotal">0 corazones</small><button id="tapOther" class="hidden" type="button">💗 Tac rival</button></div>
+<div id="stageActions"><button id="battleLaunch" class="hidden" type="button" title="Invitar creador a batalla">⚔️ Batalla</button><button id="shareLive" type="button" title="Compartir transmisión">↗</button><button id="expandLive" type="button" title="Pantalla completa">⛶</button></div><p id="videoDiagnostics" role="status" aria-live="polite">Esperando conexión…</p><div id="messages"></div><div><input id="message" placeholder="Escribe un comentario" maxlength="500"><button id="send">Enviar</button></div><button id="leave">Finalizar / salir</button><p><small id="hint"></small></p></section>
 <script src="/livekit.js"></script>
 <script type="module">
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2.78.0';
@@ -302,6 +360,10 @@ const status=x=>{E('status').textContent=x;const diag=E('videoDiagnostics');if(d
 if(!SUPABASE_URL||!SUPABASE_PUBLISHABLE_KEY){status('Falta configurar un proyecto Supabase exclusivo para VivaLive. Esta versión aún no está operativa.');throw Error('Supabase sin configurar');}
 const sb=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 let me=null,room=null,connection=null,stream=null,hosting=false,heartbeat=null,joining=false;
+let battle=null, battlePeer=null,battlePeerId=null,battleBusy=false,battlePulseBusy=false;
+const safeName=n=>String(n||'Creador').slice(0,40);
+const freshRoom=r=>r?.status==='live'&&Date.parse(r.heartbeat_at)>Date.now()-70000;
+
 const show=(id,on)=>E(id).classList.toggle('hidden',!on);
 const say=(name,message)=>{const p=document.createElement('p');p.textContent=name+': '+message;E('messages').appendChild(p);E('messages').scrollTop=E('messages').scrollHeight;};
 const err=e=>status(e?.message||String(e));
@@ -439,13 +501,182 @@ async function enter(publish){
  E('leave').disabled=true;
  E('stageTitle').textContent=(publish?'🔴 EN VIVO — ':'Viendo a ')+room.host_name;
  E('hint').textContent=publish?'Mantén abierta esta página.':'Usa Reproducir para activar el audio.';
- try{await connectLive(room,publish);}finally{E('leave').disabled=false;}
+ try{await connectLive(room,publish);show('battleLaunch',publish);show('tapBar',!publish);show('tapOwn',!publish);void battleRoomState();}finally{E('leave').disabled=false;}
 }
 async function watch(record){
  if(!me||joining||room)return;
  joining=true;room=record;
  try{await enter(false);}catch(e){await leave();err(e);}finally{joining=false;}
 }
+
+/* New optional battle + tac-tac subsystem. Existing LiveKit transport remains intact. */
+async function battleRoomState(){
+ if(!room||!connection||!me||battlePulseBusy)return;
+ battlePulseBusy=true;
+ try{
+  const {data, error}=await sb.from('vl_battles')
+    .select('id,status,challenger_room_id,opponent_room_id,challenger_id,opponent_id,challenger_score,opponent_score,created_at,started_at')
+    .or('challenger_room_id.eq.'+room.id+',opponent_room_id.eq.'+room.id)
+    .in('status',['pending','active']).order('created_at',{ascending:false}).limit(6);
+  if(error)throw error;
+  const active=(data||[]).find(x=>x.status==='active');
+  const incoming=hosting?(data||[]).find(x=>x.status==='pending'&&x.opponent_id===me.id&&Date.now()-Date.parse(x.created_at)<120000):null;
+  show('battleInvite',!!incoming);
+  if(incoming){
+   E('battleInviteText').textContent='Otro creador te invita a competir. ¿Aceptas mostrar ambas cámaras?';
+   E('battleAccept').onclick=()=>respondToBattle(incoming.id,true);
+   E('battleReject').onclick=()=>respondToBattle(incoming.id,false);
+  }
+  if(active){
+   const remain=Math.max(0,300-Math.floor((Date.now()-Date.parse(active.started_at))/1000));
+   E('battleClock').textContent=String(Math.floor(remain/60)).padStart(2,'0')+':'+String(remain%60).padStart(2,'0');
+   if(remain===0){
+    const {error:finishError}=await sb.rpc('vl_finish_expired_battle',{battle_uuid:active.id});
+    if(!finishError)E('battleStatus').textContent='La batalla terminó. Actualizando resultado…';
+   }
+   const target=active.challenger_room_id===room.id?active.opponent_room_id:active.challenger_room_id;
+   if(!battle||battle.id!==active.id||!battlePeer||battlePeerId!==target){
+    battle=active;
+    await enterBattle(target);
+   }else battle=active;
+   E('battleLeftScore').textContent=active.challenger_room_id===room.id?active.challenger_score:active.opponent_score;
+   E('battleRightScore').textContent=active.challenger_room_id===room.id?active.opponent_score:active.challenger_score;
+   E('tapOther').classList.toggle('hidden',hosting);
+   E('tapOther').dataset.room=target;
+   E('battleEnd').classList.toggle('hidden',!hosting);
+  }else{
+   if(battle||battlePeer){
+    const finished=battle;
+    await exitBattle();
+    if(finished){
+     const mine=finished.challenger_room_id===room.id?finished.challenger_score:finished.opponent_score;
+     const rival=finished.challenger_room_id===room.id?finished.opponent_score:finished.challenger_score;
+     status(mine===rival?'🤝 Batalla empatada: '+mine+' a '+rival:mine>rival?'🏆 Ganó tu equipo: '+mine+' a '+rival:'🏆 Ganó el equipo rival: '+rival+' a '+mine);
+    }
+   }
+   const pending=(data||[]).find(x=>x.status==='pending'&&x.challenger_id===me.id);
+   if(pending)E('battleStatus').textContent='Invitación enviada. Esperando respuesta del creador…';
+   show('tapOther',false);
+   show('battleEnd',true);
+  }
+  if(!hosting){
+   const {data:taps,error:te}=await sb.from('vl_live_taps').select('total').eq('room_id',room.id).maybeSingle();
+   if(!te)E('tapOwnTotal').textContent=(taps?.total||0).toLocaleString('es')+' corazones';
+  }
+ }catch(e){console.warn('Batalla:',e?.message||e);}
+ finally{battlePulseBusy=false;}
+}
+async function enterBattle(otherRoomId){
+ if(battlePeer)await exitBattle(false);
+ const {data:other,error}=await sb.from('vl_rooms').select('id,host_id,host_name,heartbeat_at,status').eq('id',otherRoomId).maybeSingle();
+ if(error||!freshRoom(other))throw Error('La transmisión rival ya no está activa.');
+ const {data:{session}}=await sb.auth.getSession();
+ if(!session)throw Error('Necesitas iniciar sesión.');
+ const result=await fetch(SUPABASE_URL+'/functions/v1/livekit-token',{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:'Bearer '+session.access_token},body:JSON.stringify({roomId:other.id,role:'viewer'})});
+ const auth=await result.json();
+ if(!result.ok)throw Error(auth.error||'No se pudo conectar a la sala rival.');
+ const {Room,RoomEvent}=window.LivekitClient;
+ const peer=new Room();battlePeer=peer;battlePeerId=other.id;
+ const remote=new MediaStream();
+ peer.on(RoomEvent.TrackSubscribed,(track,publication,participant)=>{
+  if(battlePeer!==peer||participant.identity!==other.host_id)return;
+  remote.addTrack(track.mediaStreamTrack);
+  E('battleOpponentVideo').srcObject=remote;
+  E('battleOpponentVideo').muted=false;
+  E('battleOpponentVideo').play().catch(()=>{});
+ });
+ peer.on(RoomEvent.TrackUnsubscribed,track=>remote.removeTrack(track.mediaStreamTrack));
+ peer.on(RoomEvent.Disconnected,()=>{if(battlePeer===peer)E('battleOpponentVideo').srcObject=null;});
+ try{await peer.connect(auth.url,auth.token);}
+ catch(e){if(battlePeer===peer){battlePeer=null;battlePeerId=null;}await peer.disconnect();throw e;}
+ E('battleOpponentName').textContent='🔴 '+safeName(other.host_name);
+ E('battleLeftName').textContent=safeName(room.host_name);
+ E('battleRightName').textContent=safeName(other.host_name);
+ E('stage').classList.add('battle-active');
+ show('battlePane',true);show('battleScoreboard',true);
+}
+async function exitBattle(clear=true){
+ const peer=battlePeer;battlePeer=null;battlePeerId=null;
+ if(clear)battle=null;
+ E('stage').classList.remove('battle-active');
+ show('battlePane',false);show('battleScoreboard',false);show('tapOther',false);show('battleEnd',true);
+ E('battleOpponentVideo').srcObject=null;
+ if(peer)await peer.disconnect();
+}
+async function battleCandidates(){
+ if(!hosting||!room)return;
+ show('battlePicker',true);
+ E('battleChoices').textContent='Buscando creadores disponibles…';
+ const {data,error}=await sb.from('vl_rooms').select('id,host_id,host_name,heartbeat_at,status').eq('status','live').neq('host_id',me.id).gt('heartbeat_at',new Date(Date.now()-70000).toISOString()).order('created_at',{ascending:false}).limit(30);
+ if(error){E('battleChoices').textContent='Error buscando creadores: '+error.message;return;}
+ E('battleChoices').replaceChildren();
+ if(!data?.length)E('battleChoices').textContent='No hay otros creadores en vivo por ahora.';
+ for(const candidate of data||[]){
+  const b=document.createElement('button');b.textContent='⚔️ Retar a '+safeName(candidate.host_name);
+  b.onclick=async()=>{
+   b.disabled=true;
+   const {error:requestError}=await sb.rpc('vl_request_battle',{target_room:candidate.id});
+   if(requestError)E('battleStatus').textContent=requestError.message;
+   else E('battleStatus').textContent='Invitación enviada a '+safeName(candidate.host_name);
+   b.disabled=false;
+  };
+  E('battleChoices').append(b);
+ }
+}
+async function respondToBattle(id,accept){
+ if(battleBusy)return;
+ battleBusy=true;E('battleAccept').disabled=true;E('battleReject').disabled=true;
+ try{
+  const {error}=await sb.rpc('vl_respond_battle',{battle_uuid:id,accept_battle:accept});
+  if(error)throw error;
+  show('battleInvite',false);await battleRoomState();
+ }catch(e){status('Batalla: '+e.message);}
+ finally{battleBusy=false;E('battleAccept').disabled=false;E('battleReject').disabled=false;}
+}
+E('battleLaunch').onclick=battleCandidates;
+E('battleClose').onclick=()=>show('battlePicker',false);
+E('battleEnd').onclick=async()=>{
+ if(!hosting||!battle)return;
+ const {error}=await sb.rpc('vl_end_battle',{battle_uuid:battle.id});
+ if(error)status('No se pudo terminar la batalla: '+error.message);
+ else{await exitBattle();show('battlePicker',false);}
+};
+let lastTapTime=0;
+function tapHeart(x,y){
+ const fx=E('tapFx'),heart=document.createElement('span');
+ heart.className='tap-heart';heart.textContent='💗';
+ const rect=E('stage').getBoundingClientRect();
+ heart.style.left=Math.max(6,Math.min(rect.width-35,(x??rect.right-65)-rect.left))+'px';
+ heart.style.top=Math.max(100,Math.min(rect.height-40,(y??rect.bottom-200)-rect.top))+'px';
+ fx.append(heart);setTimeout(()=>heart.remove(),900);
+}
+async function sendTac(target,x,y){
+ if(hosting||!me||!room||!target)return;
+ if(target!==room.id&&(!battle||E('tapOther').dataset.room!==target))return;
+ if(Date.now()-lastTapTime<160)return;
+ lastTapTime=Date.now();
+ const {data,error}=await sb.rpc('vl_send_tap',{target_room:target});
+ if(error){status('No se pudo enviar tac tac: '+error.message);return;}
+ tapHeart(x,y);
+ if(target===room.id)E('tapOwnTotal').textContent=Number(data).toLocaleString('es')+' corazones';
+ if(battle)battleRoomState();
+}
+E('tapOwn').onclick=()=>sendTac(room?.id);
+E('tapOther').onclick=()=>sendTac(E('tapOther').dataset.room);
+E('video').addEventListener('pointerup',event=>{
+ if(hosting||!room||!connection||event.button!==0)return;
+ const bounds=E('video').getBoundingClientRect();
+ if(event.clientY>bounds.bottom-75)return;
+ sendTac(room.id,event.clientX,event.clientY);
+});
+E('battleOpponentVideo').addEventListener('pointerup',event=>{
+ if(hosting||!battle||!battlePeerId||event.button!==0)return;
+ const bounds=E('battleOpponentVideo').getBoundingClientRect();
+ if(event.clientY>bounds.bottom-75)return;
+ sendTac(battlePeerId,event.clientX,event.clientY);
+});
+setInterval(()=>{if(room&&connection&&!document.hidden)battleRoomState();},3000);
+
 E('shareLive').onclick=async()=>{
  if(!room)return status('No hay una sala para compartir.');
  const url=location.origin+'/?live='+encodeURIComponent(room.id);
@@ -466,6 +697,12 @@ E('send').onclick=async()=>{
 };
 async function leave(){
  clearInterval(heartbeat);
+ const closingBattle=battle;
+ const shouldEnd=hosting&&closingBattle;
+ await exitBattle();
+ show('battlePicker',false);show('battleInvite',false);show('battleLaunch',false);show('tapBar',false);
+ if(shouldEnd)await sb.rpc('vl_end_battle',{battle_uuid:closingBattle.id}).catch(()=>{});
+
  const previous=connection,ended=hosting?room:null;
  connection=null;room=null;hosting=false;
  stream?.getTracks().forEach(track=>track.stop());stream=null;
