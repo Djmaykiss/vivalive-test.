@@ -355,6 +355,59 @@ nav button{min-width:0;line-height:1.3;margin:0;font-size:clamp(11px,1.2vw,14px)
  #creatorTools{top:calc(env(safe-area-inset-top) + 9px);left:65px;right:65px;display:flex;max-width:none}
  #creatorTools button{width:auto;min-width:80px;font-size:11px;padding:7px}
 }
+
+/* Battle layout inspired by large main portrait and narrow creator strip.
+   Only show real streams, never placeholder creators. */
+#stage.battle-active #video{
+ left:0!important;right:auto!important;top:0!important;bottom:0!important;
+ width:73%!important;height:100%!important;object-fit:contain!important;
+ background:#09090e;
+}
+#stage.battle-active #battlePane{
+ left:73%!important;right:0!important;top:0!important;bottom:0!important;
+ width:27%!important;display:block;border-left:3px solid #1e1b28;
+ background:#0c0e17;
+}
+#stage.battle-active #battleOpponentVideo{
+ width:100%;height:100%;object-fit:cover;object-position:center center;
+ border-radius:0;background:#08090e;
+}
+#stage.battle-active.focus-rival #battlePane{
+ left:0!important;right:auto!important;width:73%!important;border:0;
+}
+#stage.battle-active.focus-rival #video{
+ left:73%!important;right:0!important;width:27%!important;object-fit:cover!important;
+}
+#stage.battle-active.focus-rival #battleOpponentVideo{object-fit:contain}
+#battleFocus{
+ position:absolute;z-index:14;right:9px;bottom:16px;
+ font-size:12px;padding:9px 12px;margin:0;border-radius:22px;
+ border:1px solid #ffffff75;background:#111420db;color:#fff;
+}
+#battleFocus.hidden{display:none!important}
+#stage.battle-active #battleScoreboard{
+ left:50%;top:8px;width:min(350px,calc(100% - 28px));
+ max-width:none;transform:translateX(-50%);z-index:11;
+}
+#battlePicker{z-index:22!important;pointer-events:auto}
+#battleInvite{z-index:22!important;pointer-events:auto}
+#battlePicker #battleShareInvite{
+ display:block;width:100%;margin:11px 0 6px;background:#e82e7a!important;
+ color:#fff;font-weight:750;border-radius:12px;padding:12px 10px;
+}
+#battlePicker #battleChoices button{min-height:44px}
+#battlePicker #battleHelp{display:block;line-height:1.45}
+#battleStatus{line-height:1.45}
+@media(max-width:720px){
+ #stage.battle-active #video{width:70%!important}
+ #stage.battle-active #battlePane{left:70%!important;width:30%!important}
+ #stage.battle-active.focus-rival #battlePane{left:0!important;width:70%!important}
+ #stage.battle-active.focus-rival #video{left:70%!important;width:30%!important}
+ #battleFocus{bottom:calc(env(safe-area-inset-bottom) + 170px);right:6px;padding:9px;font-size:11px}
+ #stage.battle-active #battleScoreboard{top:calc(env(safe-area-inset-top) + 10px);width:calc(100% - 18px)}
+ #stage #battlePicker{top:calc(env(safe-area-inset-top) + 108px);max-height:calc(100dvh - 145px);overflow-y:auto}
+ #stage #battleInvite{top:calc(env(safe-area-inset-top) + 108px)}
+}
 </style></head><body><header><strong>VIVA<span>LIVE</span></strong><small>Transmisiones en tiempo real</small></header>
 <p id="status" role="status">Preparando conexión...</p>
 <section id="auth" class="hidden"><h2>Bienvenido a VivaLive</h2><div class="auth-tabs"><button id="tabRegister" class="current">Crear cuenta</button><button id="tabLogin">Iniciar sesión</button></div>
@@ -373,8 +426,9 @@ nav button{min-width:0;line-height:1.3;margin:0;font-size:clamp(11px,1.2vw,14px)
 <div class="view hidden" id="profileView"><h2>Mi perfil</h2><p id="myName"></p><p id="who"></p><p><small>El correo se guarda en Supabase Auth y tu sesión permanece en este dispositivo.</small></p><button id="signout">Cerrar sesión</button></div>
 </section>
 <section id="stage" class="hidden"><p class="pill" id="stageStatus">🔴 LIVE</p><h2 id="stageTitle"></h2><video id="video" autoplay playsinline controls></video><aside id="battlePane" class="hidden"><video id="battleOpponentVideo" autoplay playsinline controls></video><span id="battleOpponentName"></span></aside>
-<div id="tapFx" aria-hidden="true"></div><div id="battleScoreboard" class="hidden" aria-live="polite"><span id="battleLeftName"></span><b id="battleLeftScore">0</b><strong id="battleClock">05:00</strong><b id="battleRightScore">0</b><span id="battleRightName"></span></div>
-<div id="battlePicker" class="hidden"><h3>⚔️ Invitar a una batalla</h3><small>Reta a otro creador que esté transmitiendo. Él debe aceptar.</small><div id="battleChoices"></div><p id="battleStatus"></p><button id="battleClose" type="button">Cerrar</button><button id="battleEnd" class="hidden" type="button">Terminar batalla</button></div>
+<button id="battleFocus" class="hidden" type="button" title="Cambiar la cámara principal">⇄ Cámara principal</button><div id="tapFx" aria-hidden="true"></div><div id="battleScoreboard" class="hidden" aria-live="polite"><span id="battleLeftName"></span><b id="battleLeftScore">0</b><strong id="battleClock">05:00</strong><b id="battleRightScore">0</b><span id="battleRightName"></span></div>
+<div id="battlePicker" class="hidden"><h3>⚔️ Invitar a una batalla</h3><small>Reta a otro creador que esté transmitiendo. Él debe aceptar.</small><div id="battleChoices"></div><button id="battleShareInvite" type="button">🔗 Invitar por enlace / WhatsApp</button>
+<small id="battleHelp">El otro creador puede abrir tu enlace y empezar su propio live. Cuando lo haga, recibís una invitación para aceptar la batalla.</small><p id="battleStatus" role="status" aria-live="polite"></p><button id="battleClose" type="button">Cerrar</button><button id="battleEnd" class="hidden" type="button">Terminar batalla</button></div>
 <div id="battleInvite" class="hidden"><h3>⚔️ ¡Te retaron!</h3><p id="battleInviteText"></p><button id="battleAccept" type="button">Aceptar batalla</button><button id="battleReject" type="button">Rechazar</button></div>
 <div id="tapBar" class="hidden"><button id="tapOwn" type="button">💗 Tac tac</button><small id="tapOwnTotal">0 corazones</small><button id="tapOther" class="hidden" type="button">💗 Tac rival</button></div>
 <div id="creatorTools" class="hidden" aria-label="Controles del creador">
@@ -406,13 +460,18 @@ function updateCameraControls(){
 }
 
 let battle=null, battlePeer=null,battlePeerId=null,battleBusy=false,battlePulseBusy=false;
+const battleInviteRoomId=new URLSearchParams(location.search).get('battleInvite');
+let battleInviteHandled=false;
+
 const safeName=n=>String(n||'Creador').slice(0,40);
 const freshRoom=r=>r?.status==='live'&&Date.parse(r.heartbeat_at)>Date.now()-70000;
 
 const show=(id,on)=>E(id).classList.toggle('hidden',!on);
 const say=(name,message)=>{const p=document.createElement('p');p.textContent=name+': '+message;E('messages').appendChild(p);E('messages').scrollTop=E('messages').scrollHeight;};
 const err=e=>status(e?.message||String(e));
-async function user(){const {data:{user},error}=await sb.auth.getUser();if(error&&error.name!=='AuthSessionMissingError')console.log(error);me=user?.email_confirmed_at?user:null;if(room && me)return;show('auth',!me);show('panel',!!me);if(me){E('who').textContent=me.email;E('myName').textContent=me.user_metadata?.display_name||'Creador';navigate('home');await list();status('Correo confirmado. Puedes crear o ver una transmisión.');}else status('Crea una cuenta, confirma el correo e inicia sesión.');}
+async function user(){const {data:{user},error}=await sb.auth.getUser();if(error&&error.name!=='AuthSessionMissingError')console.log(error);me=user?.email_confirmed_at?user:null;if(room && me)return;show('auth',!me);show('panel',!!me);if(me){E('who').textContent=me.email;E('myName').textContent=me.user_metadata?.display_name||'Creador';navigate('home');await list();
+if(battleInviteRoomId&&!battleInviteHandled){navigate('create');status('⚔️ Te invitaron a una batalla. Inicia tu transmisión y se enviará la invitación al otro creador.');}
+else status('Correo confirmado. Puedes crear o ver una transmisión.');}else status('Crea una cuenta, confirma el correo e inicia sesión.');}
 function navigate(view){
 for(const v of ['home','create','profile'])show(v+'View',v===view);
 for(const v of ['Home','Search','Create','Profile'])E('nav'+v).classList.toggle('selected',v.toLowerCase()===view||(v==='Search'&&view==='home'));
@@ -540,6 +599,12 @@ E('go').onclick=async()=>{
   room=data;
   E('video').muted=true;E('video').srcObject=stream;
   await enter(true);
+  if(battleInviteRoomId&&!battleInviteHandled){
+   battleInviteHandled=true;
+   const {error:inviteError}=await sb.rpc('vl_request_battle',{target_room:battleInviteRoomId});
+   if(inviteError){E('battleStatus').textContent='No se pudo enviar el reto: '+inviteError.message;status('⚔️ '+inviteError.message);}
+   else{show('battlePicker',true);E('battleStatus').textContent='✅ Invitación enviada. Esperando que el creador acepte.';history.replaceState(null,'',location.pathname);}
+  }
  }catch(e){await leave();err(e);}finally{joining=false;}
 };
 async function enter(publish){
@@ -639,24 +704,26 @@ async function enterBattle(otherRoomId){
  E('battleLeftName').textContent=safeName(room.host_name);
  E('battleRightName').textContent=safeName(other.host_name);
  E('stage').classList.add('battle-active');
- show('battlePane',true);show('battleScoreboard',true);
+ show('battlePane',true);show('battleScoreboard',true);show('battleFocus',true);
 }
 async function exitBattle(clear=true){
  const peer=battlePeer;battlePeer=null;battlePeerId=null;
  if(clear)battle=null;
- E('stage').classList.remove('battle-active');
+ E('stage').classList.remove('battle-active','focus-rival');
+ show('battleFocus',false);E('battleFocus').textContent='⇄ Cámara principal';
  show('battlePane',false);show('battleScoreboard',false);show('tapOther',false);show('battleEnd',true);
  E('battleOpponentVideo').srcObject=null;
  if(peer)await peer.disconnect();
 }
 async function battleCandidates(){
- if(!hosting||!room)return;
+ if(!hosting||!room){status('Inicia tu transmisión primero para poder invitar a otros creadores.');return;}
+ E('battleStatus').textContent='Podés retar a alguien que ya esté en vivo o compartir tu enlace con quien todavía no haya empezado.';
  show('battlePicker',true);
  E('battleChoices').textContent='Buscando creadores disponibles…';
  const {data,error}=await sb.from('vl_rooms').select('id,host_id,host_name,heartbeat_at,status').eq('status','live').neq('host_id',me.id).gt('heartbeat_at',new Date(Date.now()-70000).toISOString()).order('created_at',{ascending:false}).limit(30);
  if(error){E('battleChoices').textContent='Error buscando creadores: '+error.message;return;}
  E('battleChoices').replaceChildren();
- if(!data?.length)E('battleChoices').textContent='No hay otros creadores en vivo por ahora.';
+ if(!data?.length)E('battleChoices').textContent='Nadie más está transmitiendo ahora. Usá «Invitar por enlace / WhatsApp» para que otro creador entre y empiece su live.';
  for(const candidate of data||[]){
   const b=document.createElement('button');b.textContent='⚔️ Retar a '+safeName(candidate.host_name);
   b.onclick=async()=>{
@@ -679,6 +746,23 @@ async function respondToBattle(id,accept){
  }catch(e){status('Batalla: '+e.message);}
  finally{battleBusy=false;E('battleAccept').disabled=false;E('battleReject').disabled=false;}
 }
+
+E('battleShareInvite').onclick=async()=>{
+ if(!hosting||!room)return;
+ const url=new URL(location.origin+location.pathname);
+ url.searchParams.set('battleInvite',room.id);
+ const link=url.toString();
+ try{
+  if(navigator.share)await navigator.share({title:'⚔️ Reto de VivaLive',text:'¡Te invito a una batalla en vivo! Entrá y comenzá tu live para retarme.',url:link});
+  else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(link);E('battleStatus').textContent='✅ Enlace copiado. Compartilo con el creador por WhatsApp.';}
+  else{E('battleStatus').textContent='Compartí este enlace: '+link;}
+ }catch(e){if(e.name!=='AbortError')E('battleStatus').textContent='No se pudo compartir: '+e.message;}
+};
+E('battleFocus').onclick=()=>{
+ if(!battle)return;
+ const focused=E('stage').classList.toggle('focus-rival');
+ E('battleFocus').textContent=focused?'⇄ Ver mi cámara':'⇄ Ver rival';
+};
 E('battleLaunch').onclick=battleCandidates;
 E('battleClose').onclick=()=>show('battlePicker',false);
 E('battleEnd').onclick=async()=>{
