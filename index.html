@@ -501,7 +501,7 @@ async function enter(publish){
  E('leave').disabled=true;
  E('stageTitle').textContent=(publish?'🔴 EN VIVO — ':'Viendo a ')+room.host_name;
  E('hint').textContent=publish?'Mantén abierta esta página.':'Usa Reproducir para activar el audio.';
- try{await connectLive(room,publish);show('battleLaunch',publish);show('tapBar',!publish);show('tapOwn',!publish);await battleRoomState();}finally{E('leave').disabled=false;}
+ try{await connectLive(room,publish);show('battleLaunch',publish);show('tapBar',!publish);show('tapOwn',!publish);void battleRoomState();}finally{E('leave').disabled=false;}
 }
 async function watch(record){
  if(!me||joining||room)return;
