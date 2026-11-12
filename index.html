@@ -663,8 +663,18 @@ async function sendTac(target,x,y){
 }
 E('tapOwn').onclick=()=>sendTac(room?.id);
 E('tapOther').onclick=()=>sendTac(E('tapOther').dataset.room);
-E('video').addEventListener('dblclick',event=>{if(!hosting&&room&&connection)sendTac(room.id,event.clientX,event.clientY);});
-E('battleOpponentVideo').addEventListener('dblclick',event=>{if(!hosting&&battle&&battlePeerId)sendTac(battlePeerId,event.clientX,event.clientY);});
+E('video').addEventListener('pointerup',event=>{
+ if(hosting||!room||!connection||event.button!==0)return;
+ const bounds=E('video').getBoundingClientRect();
+ if(event.clientY>bounds.bottom-75)return;
+ sendTac(room.id,event.clientX,event.clientY);
+});
+E('battleOpponentVideo').addEventListener('pointerup',event=>{
+ if(hosting||!battle||!battlePeerId||event.button!==0)return;
+ const bounds=E('battleOpponentVideo').getBoundingClientRect();
+ if(event.clientY>bounds.bottom-75)return;
+ sendTac(battlePeerId,event.clientX,event.clientY);
+});
 setInterval(()=>{if(room&&connection&&!document.hidden)battleRoomState();},3000);
 
 E('shareLive').onclick=async()=>{
