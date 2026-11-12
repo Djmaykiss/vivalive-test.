@@ -408,6 +408,23 @@ nav button{min-width:0;line-height:1.3;margin:0;font-size:clamp(11px,1.2vw,14px)
  #stage #battlePicker{top:calc(env(safe-area-inset-top) + 108px);max-height:calc(100dvh - 145px);overflow-y:auto}
  #stage #battleInvite{top:calc(env(safe-area-inset-top) + 108px)}
 }
+
+/* Viewer-selectable battle focus. Tap the small video to promote it. */
+#stage.battle-active:not(.focus-rival) #battleOpponentVideo,
+#stage.battle-active.focus-rival #video{cursor:pointer;touch-action:manipulation}
+#stage.battle-active:not(.focus-rival) #battleOpponentVideo:focus-visible,
+#stage.battle-active.focus-rival #video:focus-visible{outline:3px solid #ff4593;outline-offset:-4px}
+#stage.battle-active #battleOpponentVideo{pointer-events:auto}
+#stage.battle-active:not(.focus-rival) #battleOpponentName{
+ font-size:11px;left:auto;right:6px;top:60px;max-width:calc(27% - 12px)
+}
+#stage.battle-active.focus-rival #battleOpponentName{
+ left:10px;right:auto;top:60px;max-width:70%
+}
+@media(max-width:720px){
+ #stage.battle-active:not(.focus-rival) #battleOpponentName{max-width:calc(30% - 10px);right:5px;left:auto}
+ #stage.battle-active.focus-rival #battleOpponentName{max-width:calc(70% - 15px);left:5px;right:auto}
+}
 </style></head><body><header><strong>VIVA<span>LIVE</span></strong><small>Transmisiones en tiempo real</small></header>
 <p id="status" role="status">Preparando conexión...</p>
 <section id="auth" class="hidden"><h2>Bienvenido a VivaLive</h2><div class="auth-tabs"><button id="tabRegister" class="current">Crear cuenta</button><button id="tabLogin">Iniciar sesión</button></div>
@@ -704,7 +721,8 @@ async function enterBattle(otherRoomId){
  E('battleLeftName').textContent=safeName(room.host_name);
  E('battleRightName').textContent=safeName(other.host_name);
  E('stage').classList.add('battle-active');
- show('battlePane',true);show('battleScoreboard',true);show('battleFocus',true);
+ show('battlePane',true);show('battleScoreboard',true);show('battleFocus',!hosting);
+ if(!hosting)setBattleMainCamera(false);
 }
 async function exitBattle(clear=true){
  const peer=battlePeer;battlePeer=null;battlePeerId=null;
@@ -758,11 +776,16 @@ E('battleShareInvite').onclick=async()=>{
   else{E('battleStatus').textContent='Compartí este enlace: '+link;}
  }catch(e){if(e.name!=='AbortError')E('battleStatus').textContent='No se pudo compartir: '+e.message;}
 };
-E('battleFocus').onclick=()=>{
- if(!battle)return;
- const focused=E('stage').classList.toggle('focus-rival');
- E('battleFocus').textContent=focused?'⇄ Ver mi cámara':'⇄ Ver rival';
-};
+function setBattleMainCamera(rival){
+ if(!battle || hosting)return;
+ E('stage').classList.toggle('focus-rival',rival);
+ E('battleFocus').textContent=rival?'⇄ Ver cámara anterior':'⇄ Ver cámara rival';
+ E('battleFocus').setAttribute('aria-label',rival?'Hacer grande la cámara anterior':'Hacer grande la cámara rival');
+ E('video').setAttribute('aria-label',rival?'Cámara pequeña: tocar para hacer principal':'Cámara principal');
+ E('battleOpponentVideo').setAttribute('aria-label',rival?'Cámara principal':'Cámara pequeña del rival: tocar para hacer principal');
+ // La conexión a ambas salas continúa; solo cambia cuál se ve grande.
+}
+E('battleFocus').onclick=()=>setBattleMainCamera(!E('stage').classList.contains('focus-rival'));
 E('battleLaunch').onclick=battleCandidates;
 E('battleClose').onclick=()=>show('battlePicker',false);
 E('battleEnd').onclick=async()=>{
@@ -795,12 +818,20 @@ E('tapOwn').onclick=()=>sendTac(room?.id);
 E('tapOther').onclick=()=>sendTac(E('tapOther').dataset.room);
 E('video').addEventListener('pointerup',event=>{
  if(hosting||!room||!connection||event.button!==0)return;
+ if(battle && E('stage').classList.contains('focus-rival')){
+  setBattleMainCamera(false);
+  return;
+ }
  const bounds=E('video').getBoundingClientRect();
  if(event.clientY>bounds.bottom-75)return;
  sendTac(room.id,event.clientX,event.clientY);
 });
 E('battleOpponentVideo').addEventListener('pointerup',event=>{
  if(hosting||!battle||!battlePeerId||event.button!==0)return;
+ if(!E('stage').classList.contains('focus-rival')){
+  setBattleMainCamera(true);
+  return;
+ }
  const bounds=E('battleOpponentVideo').getBoundingClientRect();
  if(event.clientY>bounds.bottom-75)return;
  sendTac(battlePeerId,event.clientX,event.clientY);
