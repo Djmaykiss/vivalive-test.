@@ -328,6 +328,33 @@ nav button{min-width:0;line-height:1.3;margin:0;font-size:clamp(11px,1.2vw,14px)
 .tap-heart{position:absolute;font-size:28px;color:#ff478f;text-shadow:0 2px 10px #f40870b0;animation:vl-float 850ms ease-out forwards}
 @keyframes vl-float{from{transform:translateY(0) scale(.75);opacity:1}to{transform:translateY(-100px) scale(1.4);opacity:0}}
 @media(prefers-reduced-motion:reduce){.tap-heart{animation:none;opacity:0}}
+
+/* Mobile camera controls: additive, no changes to the streaming transport. */
+#stage #video{object-fit:contain!important;object-position:center!important;transform:none}
+#stage.camera-fill #video{object-fit:cover!important}
+#stage.camera-mirror #video{transform:scaleX(-1)}
+#stage.camera-mirror.camera-battle #video{transform:scaleX(-1)}
+#creatorTools{position:absolute;z-index:13;top:76px;right:12px;display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;max-width:calc(100% - 24px);pointer-events:auto}
+#creatorTools.hidden{display:none!important}
+#creatorTools button{margin:0;padding:9px 12px;min-height:40px;background:#211d2eea;color:#fff;border:1px solid #ff8fc477;border-radius:24px;font-size:12px;font-weight:650;box-shadow:0 4px 14px #0008}
+#creatorTools button:disabled{opacity:.5}
+#creatorTools #battleMobile{background:#f43282;border-color:#ff9dc7}
+#creatorTools button:focus-visible{outline:2px solid white}
+#stage.battle-active #creatorTools{top:110px}
+@media(max-width:720px){
+ #creatorTools{top:calc(env(safe-area-inset-top) + 68px);left:8px;right:8px;max-width:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;z-index:14}
+ #creatorTools button{font-size:clamp(10px,2.6vw,12px);padding:8px 3px;min-height:43px;white-space:normal;line-height:1.15}
+ #creatorTools #battleMobile{background:#fa347f}
+ #stage.battle-active #creatorTools{top:calc(env(safe-area-inset-top) + 114px)}
+ #stage #battlePicker,#stage #battleInvite{z-index:20;top:calc(env(safe-area-inset-top) + 130px)}
+ #stage #battlePicker{max-height:calc(100dvh - 180px);overflow-y:auto}
+ #stage #battleStatus{overflow-wrap:anywhere}
+ #stage #stageActions #battleLaunch{display:none!important}
+}
+@media(orientation:landscape) and (max-height:520px){
+ #creatorTools{top:calc(env(safe-area-inset-top) + 9px);left:65px;right:65px;display:flex;max-width:none}
+ #creatorTools button{width:auto;min-width:80px;font-size:11px;padding:7px}
+}
 </style></head><body><header><strong>VIVA<span>LIVE</span></strong><small>Transmisiones en tiempo real</small></header>
 <p id="status" role="status">Preparando conexión...</p>
 <section id="auth" class="hidden"><h2>Bienvenido a VivaLive</h2><div class="auth-tabs"><button id="tabRegister" class="current">Crear cuenta</button><button id="tabLogin">Iniciar sesión</button></div>
@@ -350,7 +377,12 @@ nav button{min-width:0;line-height:1.3;margin:0;font-size:clamp(11px,1.2vw,14px)
 <div id="battlePicker" class="hidden"><h3>⚔️ Invitar a una batalla</h3><small>Reta a otro creador que esté transmitiendo. Él debe aceptar.</small><div id="battleChoices"></div><p id="battleStatus"></p><button id="battleClose" type="button">Cerrar</button><button id="battleEnd" class="hidden" type="button">Terminar batalla</button></div>
 <div id="battleInvite" class="hidden"><h3>⚔️ ¡Te retaron!</h3><p id="battleInviteText"></p><button id="battleAccept" type="button">Aceptar batalla</button><button id="battleReject" type="button">Rechazar</button></div>
 <div id="tapBar" class="hidden"><button id="tapOwn" type="button">💗 Tac tac</button><small id="tapOwnTotal">0 corazones</small><button id="tapOther" class="hidden" type="button">💗 Tac rival</button></div>
-<div id="stageActions"><button id="battleLaunch" class="hidden" type="button" title="Invitar creador a batalla">⚔️ Batalla</button><button id="shareLive" type="button" title="Compartir transmisión">↗</button><button id="expandLive" type="button" title="Pantalla completa">⛶</button></div><p id="videoDiagnostics" role="status" aria-live="polite">Esperando conexión…</p><div id="messages"></div><div><input id="message" placeholder="Escribe un comentario" maxlength="500"><button id="send">Enviar</button></div><button id="leave">Finalizar / salir</button><p><small id="hint"></small></p></section>
+<div id="creatorTools" class="hidden" aria-label="Controles del creador">
+<button id="cameraSwitch" type="button" title="Cambiar cámara frontal o trasera">📷 Girar</button>
+<button id="cameraFit" type="button" title="Cambiar encuadre sin recortar">↔️ Encajar</button>
+<button id="cameraMirror" type="button" title="Activar o desactivar efecto espejo">🪞 Espejo</button>
+<button id="battleMobile" type="button" title="Invitar a otro creador en vivo">⚔️ Batalla</button>
+</div><div id="stageActions"><button id="battleLaunch" class="hidden" type="button" title="Invitar creador a batalla">⚔️ Batalla</button><button id="shareLive" type="button" title="Compartir transmisión">↗</button><button id="expandLive" type="button" title="Pantalla completa">⛶</button></div><p id="videoDiagnostics" role="status" aria-live="polite">Esperando conexión…</p><div id="messages"></div><div><input id="message" placeholder="Escribe un comentario" maxlength="500"><button id="send">Enviar</button></div><button id="leave">Finalizar / salir</button><p><small id="hint"></small></p></section>
 <script src="/livekit.js"></script>
 <script type="module">
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2.78.0';
@@ -360,6 +392,19 @@ const status=x=>{E('status').textContent=x;const diag=E('videoDiagnostics');if(d
 if(!SUPABASE_URL||!SUPABASE_PUBLISHABLE_KEY){status('Falta configurar un proyecto Supabase exclusivo para VivaLive. Esta versión aún no está operativa.');throw Error('Supabase sin configurar');}
 const sb=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 let me=null,room=null,connection=null,stream=null,hosting=false,heartbeat=null,joining=false;
+let cameraFacing='user',cameraFit='contain',cameraMirror=false,cameraChanging=false;
+const videoCameraConstraints=()=>({
+ width:{ideal:720},height:{ideal:1280},aspectRatio:{ideal:9/16},facingMode:{ideal:cameraFacing}
+});
+function updateCameraControls(){
+ const stage=E('stage');
+ stage.classList.toggle('camera-fill',cameraFit==='cover');
+ stage.classList.toggle('camera-mirror',hosting&&cameraMirror);
+ E('cameraFit').textContent=cameraFit==='cover'?'↔️ Llenar':'↔️ Encajar';
+ E('cameraMirror').textContent=cameraMirror?'🪞 Espejo ✓':'🪞 Espejo';
+ E('cameraSwitch').textContent=cameraFacing==='user'?'📷 Trasera':'📷 Frontal';
+}
+
 let battle=null, battlePeer=null,battlePeerId=null,battleBusy=false,battlePulseBusy=false;
 const safeName=n=>String(n||'Creador').slice(0,40);
 const freshRoom=r=>r?.status==='live'&&Date.parse(r.heartbeat_at)>Date.now()-70000;
@@ -485,8 +530,9 @@ E('go').onclick=async()=>{
  if(!me||joining||room)return;
  joining=true;
  try{
-  stream=await navigator.mediaDevices.getUserMedia({audio:true,video:{width:{ideal:720},height:{ideal:1280},aspectRatio:{ideal:9/16},facingMode:'user'}});
+  stream=await navigator.mediaDevices.getUserMedia({audio:true,video:videoCameraConstraints()});
   hosting=true;
+  cameraFit='contain';cameraMirror=false;cameraFacing='user';updateCameraControls();
   const old=await sb.from('vl_rooms').update({status:'ended'}).eq('host_id',me.id).eq('status','live');
   if(old.error)throw old.error;
   const {data,error}=await sb.from('vl_rooms').insert({host_id:me.id,host_name:String(me.user_metadata?.display_name||'Creador').slice(0,40),heartbeat_at:new Date(0).toISOString()}).select().single();
@@ -501,7 +547,7 @@ async function enter(publish){
  E('leave').disabled=true;
  E('stageTitle').textContent=(publish?'🔴 EN VIVO — ':'Viendo a ')+room.host_name;
  E('hint').textContent=publish?'Mantén abierta esta página.':'Usa Reproducir para activar el audio.';
- try{await connectLive(room,publish);show('battleLaunch',publish);show('tapBar',!publish);show('tapOwn',!publish);void battleRoomState();}finally{E('leave').disabled=false;}
+ try{await connectLive(room,publish);show('battleLaunch',publish);show('creatorTools',publish);updateCameraControls();show('tapBar',!publish);show('tapOwn',!publish);void battleRoomState();}finally{E('leave').disabled=false;}
 }
 async function watch(record){
  if(!me||joining||room)return;
@@ -677,6 +723,49 @@ E('battleOpponentVideo').addEventListener('pointerup',event=>{
 });
 setInterval(()=>{if(room&&connection&&!document.hidden)battleRoomState();},3000);
 
+
+/* Camera updates keep the same LiveKit room and microphone publication. */
+E('cameraFit').onclick=()=>{
+ if(!hosting)return;
+ cameraFit=cameraFit==='cover'?'contain':'cover';
+ updateCameraControls();
+};
+E('cameraMirror').onclick=()=>{
+ if(!hosting)return;
+ cameraMirror=!cameraMirror;
+ updateCameraControls();
+};
+E('cameraSwitch').onclick=async()=>{
+ if(!hosting||!connection||!stream||cameraChanging)return;
+ cameraChanging=true;E('cameraSwitch').disabled=true;
+ const previousFacing=cameraFacing, nextFacing=previousFacing==='user'?'environment':'user';
+ let replacement=null;
+ try{
+  const {Track}=window.LivekitClient;
+  const publication=connection.localParticipant.getTrackPublication(Track.Source.Camera);
+  if(!publication?.track?.replaceTrack)throw Error('No se encontró la cámara activa para cambiarla.');
+  const capture=await navigator.mediaDevices.getUserMedia({
+   audio:false,video:{width:{ideal:720},height:{ideal:1280},aspectRatio:{ideal:9/16},facingMode:{ideal:nextFacing}}
+  });
+  replacement=capture.getVideoTracks()[0];
+  if(!replacement)throw Error('No hay otra cámara disponible.');
+  await publication.track.replaceTrack(replacement);
+  const previous=stream.getVideoTracks()[0];
+  if(previous)stream.removeTrack(previous);
+  stream.addTrack(replacement);
+  E('video').srcObject=stream;
+  previous?.stop();
+  cameraFacing=nextFacing;
+  cameraMirror=false;
+  updateCameraControls();
+  status('✅ Cámara cambiada sin interrumpir el live.');
+ }catch(e){
+  if(replacement&& !stream.getTracks().includes(replacement))replacement.stop();
+  status('No se pudo cambiar de cámara: '+(e?.message||String(e)));
+ }finally{cameraChanging=false;E('cameraSwitch').disabled=false;}
+};
+E('battleMobile').onclick=()=>{if(hosting)battleCandidates();};
+
 E('shareLive').onclick=async()=>{
  if(!room)return status('No hay una sala para compartir.');
  const url=location.origin+'/?live='+encodeURIComponent(room.id);
@@ -700,11 +789,11 @@ async function leave(){
  const closingBattle=battle;
  const shouldEnd=hosting&&closingBattle;
  await exitBattle();
- show('battlePicker',false);show('battleInvite',false);show('battleLaunch',false);show('tapBar',false);
+ show('battlePicker',false);show('battleInvite',false);show('battleLaunch',false);show('creatorTools',false);show('tapBar',false);
  if(shouldEnd)await sb.rpc('vl_end_battle',{battle_uuid:closingBattle.id}).catch(()=>{});
 
  const previous=connection,ended=hosting?room:null;
- connection=null;room=null;hosting=false;
+ connection=null;room=null;hosting=false;cameraMirror=false;E('stage').classList.remove('camera-mirror','camera-fill');
  stream?.getTracks().forEach(track=>track.stop());stream=null;
  E('video').srcObject=null;E('messages').replaceChildren();
  show('stage',false);show('panel',!!me);
