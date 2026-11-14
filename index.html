@@ -524,6 +524,14 @@ nav button{min-width:0;line-height:1.3;margin:0;font-size:clamp(11px,1.2vw,14px)
  #stage.battle-active #battleOpponentName{top:calc(env(safe-area-inset-top) + 92px)!important}
  #stage.battle-active #videoDiagnostics.error{top:calc(env(safe-area-inset-top) + 135px)!important;max-height:70px}
 }
+/* Additive multi-guest cameras, separate from battle layout. */
+#guestTiles{position:absolute;z-index:7;right:8px;top:190px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;width:min(240px,43%);pointer-events:none}
+#guestTiles:empty{display:none}.guest-tile{position:relative;aspect-ratio:9/13;overflow:hidden;background:#111;border:1px solid #ff9cce;border-radius:12px;box-shadow:0 3px 12px #0008}
+.guest-tile video{width:100%;height:100%;object-fit:cover;border-radius:0;aspect-ratio:auto}.guest-tile span{position:absolute;bottom:0;left:0;right:0;font-size:10px;padding:5px;background:#000a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#guestInvitePanel{position:absolute;z-index:24;top:125px;left:50%;transform:translateX(-50%);width:min(355px,calc(100% - 18px));background:#20192cef;border:1px solid #ef72a9;border-radius:17px;padding:17px;box-shadow:0 15px 50px #000c}
+#guestInvitePanel.hidden,#guestJoinPanel.hidden{display:none!important}#guestInvitePanel button{margin:7px 4px 0 0;font-size:12px}#guestInviteFeedback{font-size:12px;overflow-wrap:anywhere;color:#ffe0ef}
+#guestJoinPanel{padding:18px;margin:15px auto;border:1px solid #e86b9c;border-radius:16px;background:#292035;max-width:640px}#guestJoinPanel button{font-weight:750}
+@media(max-width:720px){#guestTiles{top:calc(env(safe-area-inset-top) + 180px);width:42%;right:6px}#stage.battle-active #guestTiles{display:none}#creatorTools{grid-template-columns:repeat(5,minmax(0,1fr))}#guestInvitePanel{top:calc(env(safe-area-inset-top) + 126px)}}
 </style></head><body><header><strong>VIVA<span>LIVE</span></strong><small>Transmisiones en tiempo real</small></header>
 <p id="status" role="status">Preparando conexión...</p>
 <section id="auth" class="hidden"><h2>Bienvenido a VivaLive</h2><div class="auth-tabs"><button id="tabRegister" class="current">Crear cuenta</button><button id="tabLogin">Iniciar sesión</button></div>
@@ -534,6 +542,7 @@ nav button{min-width:0;line-height:1.3;margin:0;font-size:clamp(11px,1.2vw,14px)
 <button id="signup" class="action">Crear cuenta con correo</button><button id="signin" class="action hidden">Entrar</button>
 <p id="authFeedback" role="alert"></p><small>Confirma tu correo para entrar. Esta prueba no verifica edad ni identidad; contenido adulto y pagos deshabilitados.</small></section>
 <section id="panel" class="hidden">
+<div id="guestJoinPanel" class="hidden"><h3>🎥 Te invitaron a participar en un live</h3><p>Si aceptas, tu cámara y micrófono aparecerán junto al anfitrión. Puedes salir cuando quieras.</p><button id="guestJoinAccept" type="button">Aceptar e ingresar con cámara</button><button id="guestJoinDecline" type="button">Ahora no</button><p id="guestJoinFeedback" role="status"></p></div>
 <nav><button class="selected" id="navHome">⌂ Inicio</button><button id="navSearch">⌕ Buscar</button><button id="navCreate">⊕ Crear</button><button id="navProfile">♙ Perfil</button></nav>
 <div class="view" id="homeView"><div id="introBanner"><h3>Descubre quién está en vivo 🔥</h3><p>Explora creadores, únete al chat y comparte tu propio directo.</p></div><div id="liveCategories"><button class="active" data-category="all">🌎 Para ti</button><button data-category="recent">🆕 Recientes</button><button data-category="mine">👤 Mi live</button></div><h2>🔴 Transmisiones en vivo</h2><p>Solo aparecen salas activas reales; los contadores de audiencia todavía están en desarrollo.</p>
 <input id="search" placeholder="Buscar creador en vivo" aria-label="Buscar creador">
@@ -543,16 +552,18 @@ nav button{min-width:0;line-height:1.3;margin:0;font-size:clamp(11px,1.2vw,14px)
 </section>
 <section id="stage" class="hidden"><p class="pill" id="stageStatus">🔴 LIVE</p><h2 id="stageTitle"></h2><video id="video" autoplay playsinline controls></video><aside id="battlePane" class="hidden"><video id="battleOpponentVideo" autoplay playsinline controls></video><span id="battleOpponentName"></span></aside>
 <button id="battleFocus" class="hidden" type="button" title="Cambiar la cámara principal">⇄ Cámara principal</button><div id="tapFx" aria-hidden="true"></div><div id="battleScoreboard" class="hidden" aria-live="polite"><span id="battleLeftName"></span><b id="battleLeftScore">0</b><strong id="battleClock">05:00</strong><b id="battleRightScore">0</b><span id="battleRightName"></span></div>
-<div id="battlePicker" class="hidden"><h3>⚔️ Invitar a una batalla</h3><small>Reta a otro creador que esté transmitiendo. Él debe aceptar.</small><div id="battleChoices"></div><button id="battleShareInvite" type="button">🔗 Invitar por enlace / WhatsApp</button>
+<div id="battlePicker" class="hidden"><h3>⚔️ Invitar a una batalla</h3><small>Reta a otro creador que esté transmitiendo. Él debe aceptar.</small><div id="battleChoices"></div><button id="battleShareInvite" type="button">🔗 Invitar a batalla por WhatsApp</button><button id="battleInviteGuest" type="button">🎥 Invitar a alguien a mi live (sin PK)</button>
 <small id="battleHelp">El otro creador puede abrir tu enlace y empezar su propio live. Cuando lo haga, recibís una invitación para aceptar la batalla.</small><p id="battleStatus" role="status" aria-live="polite"></p><button id="battleCancelPending" class="hidden" type="button">Cancelar invitación pendiente</button><button id="battleClose" type="button">Cerrar</button><button id="battleEnd" class="hidden" type="button">Terminar batalla</button></div>
 <div id="battleInvite" class="hidden"><h3>⚔️ ¡Te retaron!</h3><p id="battleInviteText"></p><button id="battleAccept" type="button">Aceptar batalla</button><button id="battleReject" type="button">Rechazar</button></div>
+<div id="guestTiles" aria-label="Cámaras de invitados"></div><div id="guestInvitePanel" class="hidden"><h3>🎥 Invitar participantes a mi live</h3><p>Comparte el enlace. Cada invitado debe aceptar para mostrar su cámara y micrófono. Hasta 3 invitados.</p><button id="guestShare" type="button">🔗 Crear y compartir invitación</button><button id="guestInviteClose" type="button">Cerrar</button><p id="guestInviteFeedback" role="status"></p></div>
 <div id="tapBar" class="hidden"><button id="tapOwn" type="button">💗 Tac tac</button><small id="tapOwnTotal">0 corazones</small><button id="tapOther" class="hidden" type="button">💗 Tac rival</button></div>
 <div id="creatorTools" class="hidden" aria-label="Controles del creador">
 <button id="cameraSwitch" type="button" title="Cambiar cámara frontal o trasera">📷 Girar</button>
 <button id="cameraFit" type="button" title="Cambiar encuadre sin recortar">↔️ Encajar</button>
 <button id="cameraMirror" type="button" title="Activar o desactivar efecto espejo">🪞 Espejo</button>
 <button id="battleMobile" type="button" title="Invitar a otro creador en vivo">⚔️ Batalla</button>
-</div><div id="stageActions"><button id="battleLaunch" class="hidden" type="button" title="Invitar creador a batalla">⚔️ Batalla</button><button id="shareLive" type="button" title="Compartir transmisión">↗</button><button id="expandLive" type="button" title="Pantalla completa">⛶</button></div><p id="videoDiagnostics" role="status" aria-live="polite">Esperando conexión…</p><div id="messages"></div><div><input id="message" placeholder="Escribe un comentario" maxlength="500"><button id="send">Enviar</button></div><button id="leave">Finalizar / salir</button><p><small id="hint"></small></p></section>
+<button id="guestMobile" type="button" title="Invitar personas con cámara a tu live">🎥 Invitar</button>
+</div><div id="stageActions"><button id="battleLaunch" class="hidden" type="button" title="Invitar creador a batalla">⚔️ Batalla</button><button id="guestLaunch" class="hidden" type="button" title="Invitar personas con cámara">🎥 Invitar</button><button id="shareLive" type="button" title="Compartir transmisión">↗</button><button id="expandLive" type="button" title="Pantalla completa">⛶</button></div><p id="videoDiagnostics" role="status" aria-live="polite">Esperando conexión…</p><div id="messages"></div><div><input id="message" placeholder="Escribe un comentario" maxlength="500"><button id="send">Enviar</button></div><button id="leave">Finalizar / salir</button><p><small id="hint"></small></p></section>
 <script src="/livekit.js"></script>
 <script type="module">
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2.78.0';
@@ -562,6 +573,9 @@ const status=x=>{E('status').textContent=x;const diag=E('videoDiagnostics');if(d
 if(!SUPABASE_URL||!SUPABASE_PUBLISHABLE_KEY){status('Falta configurar un proyecto Supabase exclusivo para VivaLive. Esta versión aún no está operativa.');throw Error('Supabase sin configurar');}
 const sb=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 let me=null,room=null,connection=null,stream=null,hosting=false,heartbeat=null,joining=false;
+let guestMode=false,guestActiveInvite=null,guestHeartbeat=null;
+const guestInviteFromLink=new URLSearchParams(location.search).get('guestInvite');
+const guestFeeds=new Map();
 let cameraFacing='user',cameraFit='contain',cameraMirror=false,cameraChanging=false;
 const videoCameraConstraints=()=>({
  width:{ideal:720},height:{ideal:1280},aspectRatio:{ideal:9/16},facingMode:{ideal:cameraFacing}
@@ -588,7 +602,8 @@ const show=(id,on)=>E(id).classList.toggle('hidden',!on);
 const say=(name,message)=>{const p=document.createElement('p');p.textContent=name+': '+message;E('messages').appendChild(p);E('messages').scrollTop=E('messages').scrollHeight;};
 const err=e=>status(e?.message||String(e));
 async function user(){const {data:{user},error}=await sb.auth.getUser();if(error&&error.name!=='AuthSessionMissingError')console.log(error);me=user?.email_confirmed_at?user:null;if(room && me)return;show('auth',!me);show('panel',!!me);if(me){E('who').textContent=me.email;E('myName').textContent=me.user_metadata?.display_name||'Creador';navigate('home');await list();
-if(battleInviteRoomId&&!battleInviteHandled){navigate('create');status('⚔️ Te invitaron a una batalla. Inicia tu transmisión y se enviará la invitación al otro creador.');}
+if(guestInviteFromLink){show('guestJoinPanel',true);status('🎥 Te invitaron a participar con tu cámara en un live.');}
+else if(battleInviteRoomId&&!battleInviteHandled){navigate('create');status('⚔️ Te invitaron a una batalla. Inicia tu transmisión y se enviará la invitación al otro creador.');}
 else status('Correo confirmado. Puedes crear o ver una transmisión.');}else status('Crea una cuenta, confirma el correo e inicia sesión.');}
 function navigate(view){
 for(const v of ['home','create','profile'])show(v+'View',v===view);
@@ -663,20 +678,37 @@ document.querySelectorAll('[data-category]').forEach(btn=>btn.onclick=()=>{
 async function connectLive(record, publish) {
  const {data:{session}}=await sb.auth.getSession();
  if(!session) throw Error('Inicia sesión para entrar.');
- const response=await fetch(SUPABASE_URL+'/functions/v1/livekit-token',{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:'Bearer '+session.access_token},body:JSON.stringify({roomId:record.id,role:publish?'host':'viewer'})});
+ const response=await fetch(SUPABASE_URL+'/functions/v1/livekit-token',{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:'Bearer '+session.access_token},body:JSON.stringify({roomId:record.id,role:guestMode?'guest':publish?'host':'viewer'})});
  const auth=await response.json();
  if(!response.ok)throw Error(auth.error);
  const {Room,RoomEvent,Track}=window.LivekitClient;
  const current=new Room();
  connection=current;
  const media=new MediaStream();
+ function guestTile(participant){
+  let item=guestFeeds.get(participant.identity);
+  if(item)return item;
+  const box=document.createElement('div');box.className='guest-tile';
+  const video=document.createElement('video');video.autoplay=true;video.playsInline=true;
+  const label=document.createElement('span');label.textContent=participant.name||'Invitado';
+  box.append(video,label);E('guestTiles').append(box);
+  item={box,video,media:new MediaStream()};guestFeeds.set(participant.identity,item);return item;
+ }
  current.on(RoomEvent.TrackSubscribed,(track,publication,participant)=>{
-  if(current!==connection || participant.identity!==record.host_id)return;
-  media.addTrack(track.mediaStreamTrack);
-  E('video').srcObject=media;E('video').muted=false;
-  E('video').play().catch(()=>status('Pulsa Reproducir para activar el audio y el video.'));
+  if(current!==connection)return;
+  if(participant.identity===record.host_id){
+   media.addTrack(track.mediaStreamTrack);
+   E('video').srcObject=media;E('video').muted=false;
+   E('video').play().catch(()=>status('Pulsa Reproducir para activar el audio y el video.'));
+  }else{
+   const item=guestTile(participant);item.media.addTrack(track.mediaStreamTrack);
+   item.video.srcObject=item.media;item.video.muted=false;item.video.play().catch(()=>{});
+  }
  });
- current.on(RoomEvent.TrackUnsubscribed,track=>media.removeTrack(track.mediaStreamTrack));
+ current.on(RoomEvent.TrackUnsubscribed,(track,publication,participant)=>{
+  if(participant.identity===record.host_id)media.removeTrack(track.mediaStreamTrack);
+  else {const item=guestFeeds.get(participant.identity);item?.media.removeTrack(track.mediaStreamTrack);}
+ });
  current.on(RoomEvent.Reconnecting,()=>status('Reconectando a la sala…'));
  current.on(RoomEvent.Reconnected,()=>status('Conexión restablecida.'));
  current.on(RoomEvent.DataReceived,(bytes,sender,kind,topic)=>{
@@ -684,15 +716,28 @@ async function connectLive(record, publish) {
  });
  current.on(RoomEvent.ParticipantDisconnected,participant=>{
   if(!publish && participant.identity===record.host_id && current===connection)leave();
+  const item=guestFeeds.get(participant.identity);if(item){item.box.remove();guestFeeds.delete(participant.identity);}
  });
  current.on(RoomEvent.Disconnected,()=>{if(current===connection)leave();});
  await current.connect(auth.url,auth.token);
- if(!publish){
+ if(!publish&&!guestMode){
   if(!current.remoteParticipants.has(record.host_id))throw Error('El creador ya salió de la sala.');
   return;
  }
  for(const track of stream.getTracks()){
   await current.localParticipant.publishTrack(track,{source:track.kind==='video'?Track.Source.Camera:Track.Source.Microphone});
+ }
+ if(guestMode){
+  const self=guestTile({identity:me.id,name:'Yo (invitado)'});
+  self.video.srcObject=stream;self.video.muted=true;self.video.play().catch(()=>{});
+  const pulseGuest=async()=>{
+   if(!guestActiveInvite||current!==connection)return;
+   const {data,error}=await sb.rpc('vl_guest_heartbeat',{invite_uuid:guestActiveInvite});
+   if(error||!data){status('Tu invitación ya no está activa.');await leave();}
+  };
+  guestHeartbeat=setInterval(()=>void pulseGuest(),20000);
+  status('✅ Entraste al live como invitado. Tu cámara y micrófono están activos.');
+  return;
  }
  const pulse=async()=>{
   if(current!==connection || current.state!=='connected')return;
@@ -728,9 +773,9 @@ E('go').onclick=async()=>{
 async function enter(publish){
  show('stage',true);show('panel',false);
  E('leave').disabled=true;
- E('stageTitle').textContent=(publish?'🔴 EN VIVO — ':'Viendo a ')+room.host_name;
+ E('stageTitle').textContent=(publish?'🔴 EN VIVO — ':guestMode?'🎥 Invitado de ':'Viendo a ')+room.host_name;
  E('hint').textContent=publish?'Mantén abierta esta página.':'Usa Reproducir para activar el audio.';
- try{await connectLive(room,publish);show('battleLaunch',publish);show('creatorTools',publish);updateCameraControls();show('tapBar',!publish);show('tapOwn',!publish);void battleRoomState();}finally{E('leave').disabled=false;}
+ try{await connectLive(room,publish);show('battleLaunch',publish);show('guestLaunch',publish);show('creatorTools',publish);updateCameraControls();show('tapBar',!publish&&!guestMode);show('tapOwn',!publish&&!guestMode);if(!guestMode)void battleRoomState();}finally{E('leave').disabled=false;}
 }
 async function watch(record){
  if(!me||joining||room)return;
@@ -1004,6 +1049,44 @@ E('cameraSwitch').onclick=async()=>{
 };
 E('battleMobile').onclick=()=>{if(hosting)battleCandidates();};
 
+/* Invitaciones de participantes: un invitado entra en la sala del anfitrión,
+   no necesita iniciar un segundo live ni tener acceso a publicar sin invitación. */
+const openGuestInvites=()=>{if(hosting&&room){show('guestInvitePanel',true);E('guestInviteFeedback').textContent='Comparte una invitación diferente con cada persona.';}};
+E('guestLaunch').onclick=openGuestInvites;
+E('guestMobile').onclick=openGuestInvites;
+E('battleInviteGuest').onclick=()=>{show('battlePicker',false);openGuestInvites();};
+E('guestInviteClose').onclick=()=>show('guestInvitePanel',false);
+E('guestShare').onclick=async()=>{
+ if(!hosting||!room)return;
+ E('guestShare').disabled=true;
+ try{
+  const {data,error}=await sb.rpc('vl_create_guest_invite',{target_room:room.id});
+  if(error)throw error;
+  const url=new URL(location.origin+location.pathname);url.searchParams.set('guestInvite',data);
+  const link=url.toString();
+  if(navigator.share)await navigator.share({title:'🎥 Invitación a mi live de VivaLive',text:'Te invito a participar con cámara y micrófono en mi live.',url:link});
+  else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(link);E('guestInviteFeedback').textContent='✅ Enlace copiado. Envíalo por WhatsApp. Crea otro para otra persona.';}
+  else E('guestInviteFeedback').textContent='Envía este enlace a tu invitado: '+link;
+ }catch(e){if(e.name!=='AbortError')E('guestInviteFeedback').textContent='No se pudo invitar: '+(e?.message||String(e));}
+ finally{E('guestShare').disabled=false;}
+};
+E('guestJoinAccept').onclick=async()=>{
+ if(!guestInviteFromLink||!me||joining||room)return;
+ joining=true;E('guestJoinAccept').disabled=true;
+ try{
+  // Camera consent is requested before the invitation is consumed.
+  const capture=await navigator.mediaDevices.getUserMedia({audio:true,video:videoCameraConstraints()});
+  const {data:roomId,error}=await sb.rpc('vl_accept_guest_invite',{invite_uuid:guestInviteFromLink});
+  if(error){capture.getTracks().forEach(x=>x.stop());throw error;}
+  const {data:record,error:roomError}=await sb.from('vl_rooms').select('id,host_id,host_name,heartbeat_at,status').eq('id',roomId).single();
+  if(roomError||!freshRoom(record)){capture.getTracks().forEach(x=>x.stop());throw Error('El anfitrión ya no está transmitiendo.');}
+  stream=capture;room=record;guestMode=true;guestActiveInvite=guestInviteFromLink;
+  await enter(false);show('guestJoinPanel',false);
+ }catch(e){E('guestJoinFeedback').textContent='No fue posible entrar: '+(e?.message||String(e));if(room)await leave();}
+ finally{joining=false;E('guestJoinAccept').disabled=false;}
+};
+E('guestJoinDecline').onclick=()=>{show('guestJoinPanel',false);history.replaceState(null,'',location.pathname);};
+
 E('shareLive').onclick=async()=>{
  if(!room)return status('No hay una sala para compartir.');
  const url=location.origin+'/?live='+encodeURIComponent(room.id);
@@ -1024,19 +1107,22 @@ E('send').onclick=async()=>{
 };
 async function leave(){
  clearInterval(heartbeat);
+ clearInterval(guestHeartbeat);guestHeartbeat=null;
  const closingBattle=battle;
  const shouldEnd=hosting&&closingBattle;
  await exitBattle();
  incomingBattleId=null;pendingBattleId=null;document.title=originalPageTitle;
- show('battlePicker',false);show('battleInvite',false);show('battleLaunch',false);show('creatorTools',false);show('tapBar',false);
+ show('battlePicker',false);show('battleInvite',false);show('battleLaunch',false);show('guestLaunch',false);show('guestInvitePanel',false);show('creatorTools',false);show('tapBar',false);
  if(shouldEnd)await sb.rpc('vl_end_battle',{battle_uuid:closingBattle.id}).catch(()=>{});
 
- const previous=connection,ended=hosting?room:null;
- connection=null;room=null;hosting=false;cameraMirror=false;E('stage').classList.remove('camera-mirror','camera-fill');
+ const previous=connection,ended=hosting?room:null,endingGuest=guestMode?guestActiveInvite:null;
+ connection=null;room=null;hosting=false;guestMode=false;guestActiveInvite=null;cameraMirror=false;E('stage').classList.remove('camera-mirror','camera-fill');
+ guestFeeds.forEach(item=>item.box.remove());guestFeeds.clear();
  stream?.getTracks().forEach(track=>track.stop());stream=null;
  E('video').srcObject=null;E('messages').replaceChildren();
  show('stage',false);show('panel',!!me);
  await previous?.disconnect();
+ if(endingGuest)await sb.rpc('vl_end_guest_invite',{invite_uuid:endingGuest}).catch(()=>{});
  if(ended){
   const {error}=await sb.from('vl_rooms').update({status:'ended'}).eq('id',ended.id);
   if(error)err(error);
