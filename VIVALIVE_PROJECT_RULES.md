@@ -21,6 +21,13 @@
 - No hay pagos, regalos monetarios ni datos de espectadores falsos.
 - Si no hay una batalla activa, el live conserva exactamente su funcionamiento individual anterior.
 
+## Lives grupales con invitados
+
+- El dueño del live conserva su sala y puede compartir enlaces de invitación individuales con hasta tres participantes simultáneos.
+- Los invitados deben tener correo confirmado, aceptar expresamente y autorizar cámara y micrófono; un espectador no recibe permisos de publicación.
+- El servidor verifica la invitación aceptada antes de emitir un token LiveKit de invitado; los enlaces no contienen claves secretas.
+- La desconexión de un invitado no finaliza la transmisión del anfitrión ni afecta las batallas entre dos salas.
+
 ## Comprobación antes de liberar
 
 - Dos cuentas con correo confirmado transmitiendo simultáneamente.
