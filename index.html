@@ -544,7 +544,7 @@ nav button{min-width:0;line-height:1.3;margin:0;font-size:clamp(11px,1.2vw,14px)
 <section id="stage" class="hidden"><p class="pill" id="stageStatus">🔴 LIVE</p><h2 id="stageTitle"></h2><video id="video" autoplay playsinline controls></video><aside id="battlePane" class="hidden"><video id="battleOpponentVideo" autoplay playsinline controls></video><span id="battleOpponentName"></span></aside>
 <button id="battleFocus" class="hidden" type="button" title="Cambiar la cámara principal">⇄ Cámara principal</button><div id="tapFx" aria-hidden="true"></div><div id="battleScoreboard" class="hidden" aria-live="polite"><span id="battleLeftName"></span><b id="battleLeftScore">0</b><strong id="battleClock">05:00</strong><b id="battleRightScore">0</b><span id="battleRightName"></span></div>
 <div id="battlePicker" class="hidden"><h3>⚔️ Invitar a una batalla</h3><small>Reta a otro creador que esté transmitiendo. Él debe aceptar.</small><div id="battleChoices"></div><button id="battleShareInvite" type="button">🔗 Invitar por enlace / WhatsApp</button>
-<small id="battleHelp">El otro creador puede abrir tu enlace y empezar su propio live. Cuando lo haga, recibís una invitación para aceptar la batalla.</small><p id="battleStatus" role="status" aria-live="polite"></p><button id="battleClose" type="button">Cerrar</button><button id="battleEnd" class="hidden" type="button">Terminar batalla</button></div>
+<small id="battleHelp">El otro creador puede abrir tu enlace y empezar su propio live. Cuando lo haga, recibís una invitación para aceptar la batalla.</small><p id="battleStatus" role="status" aria-live="polite"></p><button id="battleCancelPending" class="hidden" type="button">Cancelar invitación pendiente</button><button id="battleClose" type="button">Cerrar</button><button id="battleEnd" class="hidden" type="button">Terminar batalla</button></div>
 <div id="battleInvite" class="hidden"><h3>⚔️ ¡Te retaron!</h3><p id="battleInviteText"></p><button id="battleAccept" type="button">Aceptar batalla</button><button id="battleReject" type="button">Rechazar</button></div>
 <div id="tapBar" class="hidden"><button id="tapOwn" type="button">💗 Tac tac</button><small id="tapOwnTotal">0 corazones</small><button id="tapOther" class="hidden" type="button">💗 Tac rival</button></div>
 <div id="creatorTools" class="hidden" aria-label="Controles del creador">
@@ -576,6 +576,8 @@ function updateCameraControls(){
 }
 
 let battle=null, battlePeer=null,battlePeerId=null,battleBusy=false,battlePulseBusy=false;
+let incomingBattleId=null,pendingBattleId=null;
+const originalPageTitle=document.title;
 const battleInviteRoomId=new URLSearchParams(location.search).get('battleInvite');
 let battleInviteHandled=false;
 
@@ -750,10 +752,16 @@ async function battleRoomState(){
   const incoming=hosting?(data||[]).find(x=>x.status==='pending'&&x.opponent_id===me.id&&Date.now()-Date.parse(x.created_at)<120000):null;
   show('battleInvite',!!incoming);
   if(incoming){
-   E('battleInviteText').textContent='Otro creador te invita a competir. ¿Aceptas mostrar ambas cámaras?';
+   if(incomingBattleId!==incoming.id){
+    incomingBattleId=incoming.id;
+    document.title='⚔️ ¡Te invitan a una batalla! — VivaLive';
+    if(navigator.vibrate)navigator.vibrate([160,100,160]);
+    status('⚔️ ¡Recibiste un reto! Pulsa «Aceptar batalla» o «Rechazar» en la ventana de invitación.');
+   }
+   E('battleInviteText').textContent='¡Otro creador te está invitando a una batalla! Acepta para que las dos cámaras aparezcan en vivo.';
    E('battleAccept').onclick=()=>respondToBattle(incoming.id,true);
    E('battleReject').onclick=()=>respondToBattle(incoming.id,false);
-  }
+  }else if(incomingBattleId){incomingBattleId=null;document.title=originalPageTitle;}
   if(active){
    const remain=Math.max(0,300-Math.floor((Date.now()-Date.parse(active.started_at))/1000));
    E('battleClock').textContent=String(Math.floor(remain/60)).padStart(2,'0')+':'+String(remain%60).padStart(2,'0');
@@ -781,16 +789,19 @@ async function battleRoomState(){
      status(mine===rival?'🤝 Batalla empatada: '+mine+' a '+rival:mine>rival?'🏆 Ganó tu equipo: '+mine+' a '+rival:'🏆 Ganó el equipo rival: '+rival+' a '+mine);
     }
    }
-   const pending=(data||[]).find(x=>x.status==='pending'&&x.challenger_id===me.id);
-   if(pending)E('battleStatus').textContent='Invitación enviada. Esperando respuesta del creador…';
+   const pending=(data||[]).find(x=>x.status==='pending'&&x.challenger_id===me.id&&Date.now()-Date.parse(x.created_at)<120000);
+   pendingBattleId=pending?.id||null;
+   show('battleCancelPending',!!pending&&hosting);
+   if(pending)E('battleStatus').textContent='⏳ Reto enviado. El otro creador debe pulsar «Aceptar batalla» en su live. Si no responde, puedes cancelar e invitar de nuevo.';
+   else if(hosting&&E('battleStatus').textContent.startsWith('⏳'))E('battleStatus').textContent='La invitación caducó. Puedes enviar otra.';
    show('tapOther',false);
-   show('battleEnd',true);
+   show('battleEnd',false);
   }
   if(!hosting){
    const {data:taps,error:te}=await sb.from('vl_live_taps').select('total').eq('room_id',room.id).maybeSingle();
    if(!te)E('tapOwnTotal').textContent=(taps?.total||0).toLocaleString('es')+' corazones';
   }
- }catch(e){console.warn('Batalla:',e?.message||e);}
+ }catch(e){console.warn('Batalla:',e?.message||e);if(hosting)E('battleStatus').textContent='No se pudo comprobar el reto: '+(e?.message||String(e));}
  finally{battlePulseBusy=false;}
 }
 async function enterBattle(otherRoomId){
@@ -887,6 +898,18 @@ function setBattleMainCamera(rival){
 E('battleFocus').onclick=()=>setBattleMainCamera(!E('stage').classList.contains('focus-rival'));
 E('battleLaunch').onclick=battleCandidates;
 E('battleClose').onclick=()=>show('battlePicker',false);
+E('battleCancelPending').onclick=async()=>{
+ if(!hosting||!pendingBattleId)return;
+ E('battleCancelPending').disabled=true;
+ try{
+  const {error}=await sb.rpc('vl_end_battle',{battle_uuid:pendingBattleId});
+  if(error)throw error;
+  pendingBattleId=null;show('battleCancelPending',false);
+  E('battleStatus').textContent='✅ Invitación cancelada. Ya puedes retar a otro creador.';
+  await battleCandidates();
+ }catch(e){E('battleStatus').textContent='No se pudo cancelar el reto: '+(e?.message||String(e));}
+ finally{E('battleCancelPending').disabled=false;}
+};
 E('battleEnd').onclick=async()=>{
  if(!hosting||!battle)return;
  const {error}=await sb.rpc('vl_end_battle',{battle_uuid:battle.id});
@@ -936,6 +959,7 @@ E('battleOpponentVideo').addEventListener('pointerup',event=>{
  sendTac(battlePeerId,event.clientX,event.clientY);
 });
 setInterval(()=>{if(room&&connection&&!document.hidden)battleRoomState();},3000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&room&&connection)void battleRoomState();});
 
 
 /* Camera updates keep the same LiveKit room and microphone publication. */
@@ -1003,6 +1027,7 @@ async function leave(){
  const closingBattle=battle;
  const shouldEnd=hosting&&closingBattle;
  await exitBattle();
+ incomingBattleId=null;pendingBattleId=null;document.title=originalPageTitle;
  show('battlePicker',false);show('battleInvite',false);show('battleLaunch',false);show('creatorTools',false);show('tapBar',false);
  if(shouldEnd)await sb.rpc('vl_end_battle',{battle_uuid:closingBattle.id}).catch(()=>{});
 
